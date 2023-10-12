@@ -64,18 +64,6 @@ const Scroll = styled.div`
     overflow: auto;
 `;
 
-const ChatBubble = styled.div`
-    background: ${(props) => (props.isUser ? '#e1ffd3' : '#A9EAFE')};
-    padding: 10px;
-    border-radius: 10px;
-    margin: 5px;
-    width: max-content;
-    max-width: 70%;
-    margin-left: ${(props) => (props.isUser ? 'auto' : '5px')};
-    margin-right: ${(props) => (props.isUser ? '5px' : 'auto')};
-    align-self: ${(props) => (props.isUser ? 'flex-end' : 'flex-start')};
-`;
-
 const InputContainer = styled.div`
     display: flex;
     align-items: center;
@@ -98,6 +86,37 @@ const SendButton = styled.button`
     cursor: pointer;
 `;
 
+const ChatBubbleTimestamp = styled.div`
+    font-size: 10px;
+    color: #999;
+    text-align: ${(props) => (props.isUser ? 'right' : 'left')};
+    margin: 10px;
+`;
+
+const ChatBubble = styled.div`
+    background: ${(props) => (props.isUser ? '#e1ffd3' : '#A9EAFE')};
+    padding: 10px;
+    border-radius: 10px;
+    margin: 5px;
+    width: max-content;
+    max-width: 70%;
+    margin-left: ${(props) => (props.isUser ? 'auto' : '5px')};
+    margin-right: ${(props) => (props.isUser ? '5px' : 'auto')};
+    align-self: ${(props) => (props.isUser ? 'flex-end' : 'flex-start')};
+    display: flex;
+    flex-direction: column;
+`;
+
+const ChatBubbleContent = styled.div`
+    margin: 5px;
+`;
+
+const ChatBubbleSender = styled.div`
+    font-size: 14px;
+    margin: 10px;
+    margin-bottom: 5px;
+`;
+
 const Chat = () => {
     const [selectedChat, setSelectedChat] = useState(null);
     const [newMessage, setNewMessage] = useState('');
@@ -108,8 +127,20 @@ const Chat = () => {
             type: 'group',
             members: 3,
             messages: [
-                { id: 1, text: '안녕하세요!', sender: 'User1', read: false },
-                { id: 2, text: '안녕하세요! 반가워요!', sender: 'User2', read: true },
+                {
+                    id: 1,
+                    text: '안녕하세요!',
+                    sender: 'User1',
+                    read: false,
+                    timestamp: new Date('2023-10-12T09:30:00'),
+                },
+                {
+                    id: 2,
+                    text: '안녕하세요! 반가워요!',
+                    sender: 'User2',
+                    read: true,
+                    timestamp: new Date('2023-10-12T09:31:00'),
+                },
             ],
         },
         {
@@ -117,8 +148,20 @@ const Chat = () => {
             name: 'User3',
             type: 'private',
             messages: [
-                { id: 3, text: '안녕, User3!', sender: 'User1', read: true },
-                { id: 4, text: '안녕, User1!', sender: 'User3', read: false },
+                {
+                    id: 3,
+                    text: '안녕, User3!',
+                    sender: 'User1',
+                    read: true,
+                    timestamp: new Date('2023-10-12T10:15:00'),
+                },
+                {
+                    id: 4,
+                    text: '안녕, User1!',
+                    sender: 'User3',
+                    read: false,
+                    timestamp: new Date('2023-10-12T10:16:00'),
+                },
             ],
         },
     ]);
@@ -138,12 +181,11 @@ const Chat = () => {
             return c;
           });
           setChats(updatedChats);
-          // setSelectedChat를 사용하여 selectedChat 상태를 업데이트합니다.
           setSelectedChat(updatedChats.find((c) => c.id === chat.id));
         }
-      };      
+      };  
 
-    return (
+      return (
         <Container>
             <ChatList>
                 {chats.map((chat) => (
@@ -163,9 +205,15 @@ const Chat = () => {
                     <Scroll>
                         {selectedChat.messages.map((message) => (
                             <div key={message.id}>
+                                {message.sender !== 'User1' && (
+                                    <ChatBubbleSender>{message.sender}</ChatBubbleSender>
+                                )}
                                 <ChatBubble isUser={message.sender === 'User1'}>
-                                    {message.text}
+                                    <ChatBubbleContent>{message.text}</ChatBubbleContent>
                                 </ChatBubble>
+                                <ChatBubbleTimestamp isUser={message.sender === 'User1'}>
+                                    {new Date(message.timestamp).toLocaleString()}
+                                </ChatBubbleTimestamp>
                             </div>
                         ))}
                     </Scroll>
