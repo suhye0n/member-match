@@ -8,7 +8,7 @@ const Heading = styled.div`
     display: flex;
     flex-direction: column;
     padding: 150px 20% 50px 20%;
-    background: url('/bg.jpg');
+    background: url('/bg3.jpg');
     background-repeat: no-repeat;
     background-size: cover;
 `;
@@ -20,11 +20,11 @@ const Container = styled.div`
     background: #fff;
 `;
 
-const Mypage = () => {
+const About = () => {
     return (
         <>
             <Heading>
-                <h1>공지사항</h1>
+                <h1>멤버매치 소개</h1>
             </Heading>
 
             <Container>
@@ -33,4 +33,4 @@ const Mypage = () => {
     );
 };
 
-export default Mypage;
+export default About;

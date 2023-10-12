@@ -8,7 +8,7 @@ const Heading = styled.div`
     display: flex;
     flex-direction: column;
     padding: 150px 20% 50px 20%;
-    background: url('/bg.jpg');
+    background: url('/bg2.jpg');
     background-repeat: no-repeat;
     background-size: cover;
 `;
@@ -20,11 +20,11 @@ const Container = styled.div`
     background: #fff;
 `;
 
-const Mypage = () => {
+const Reset = () => {
     return (
         <>
             <Heading>
-                <h1>공지사항</h1>
+                <h1>비밀번호 재설정</h1>
             </Heading>
 
             <Container>
@@ -33,4 +33,4 @@ const Mypage = () => {
     );
 };
 
-export default Mypage;
+export default Reset;

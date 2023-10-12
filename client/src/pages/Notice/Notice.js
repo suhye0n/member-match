@@ -20,7 +20,7 @@ const Container = styled.div`
     background: #fff;
 `;
 
-const Mypage = () => {
+const Notice = () => {
     return (
         <>
             <Heading>
@@ -33,4 +33,4 @@ const Mypage = () => {
     );
 };
 
-export default Mypage;
+export default Notice;
