@@ -4,37 +4,8 @@ import styled, { keyframes } from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
 import { CgProfile } from 'react-icons/cg';
 import { MdOutlineReportGmailerrorred, MdStarBorder, MdChatBubbleOutline } from 'react-icons/md';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
 import Chat from '../../layout/Chat';
-
-const CalendarContainer = styled.div`
-  .react-calendar {
-    width: 100%;
-    border-radius: 10px;
-    box-shadow: 0px 2px 4px 0px #eceae5;
-    background: rgba(224, 199, 195, .2);
-    padding: 40px;
-    border: none;
-    margin-bottom: 30px;
-  }
-`;
-
-const EventInput = styled.input`
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-right: 10px;
-  padding: 5px;
-`;
-
-const EventButton = styled.button`
-  background: #007BFF;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-`;
+import CustomCalendar from './Calendar';
 
 const Heading = styled.div`
     padding: 150px 20% 50px 20%;
@@ -247,39 +218,6 @@ const Project = () => {
     const [isChatOpen, setChatOpen] = useState(false);
     const [isRateOpen, setRateOpen] = useState(false);
     const [isReportOpen, setReportOpen] = useState(false); const [date, setDate] = useState(new Date());
-    const [newEventTitle, setNewEventTitle] = useState('');
-
-
-    const [events, setEvents] = useState([
-        {
-            title: '로그인 기능 만들기',
-            description: '로그인 기능',
-            date: new Date(2023, 9, 15),
-        },
-        {
-            title: '회원가입 성공하기',
-            description: '성공',
-            date: new Date(2023, 9, 20),
-        },
-    ]);
-
-    const handleDateClick = (selectedDate) => {
-        setDate(selectedDate);
-    };
-
-    const addEvent = () => {
-        if (newEventTitle.trim() === '') {
-            return;
-        }
-
-        const newEvent = {
-            date,
-            title: newEventTitle,
-        };
-
-        setEvents([...events, newEvent]);
-        setNewEventTitle('');
-    };
 
     return (
         <>
@@ -412,33 +350,8 @@ const Project = () => {
                     </div>
                 </ListItem>
 
-                <CalendarContainer>
-                    <Calendar onChange={handleDateClick} value={date} />
-                </CalendarContainer>
-
-                <ListItem>
-                    <div>
-                        <EventInput
-                            type="text"
-                            placeholder="일정 제목 입력"
-                            value={newEventTitle}
-                            onChange={(e) => setNewEventTitle(e.target.value)}
-                        />
-                        <EventButton onClick={addEvent}>일정 추가</EventButton>
-                    </div>
-
-                    <div>
-                        <ul>
-                            {events
-                                .filter((event) => event.date.toDateString() === date.toDateString())
-                                .map((event, index) => (
-                                    <li key={index}>{event.title}</li>
-                                ))}
-                        </ul>
-                    </div>
-                </ListItem>
+                <CustomCalendar />
             </Container>
-
         </>
     );
 };
