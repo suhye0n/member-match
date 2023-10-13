@@ -54,12 +54,7 @@ export const signup = async userDTO => {
             window.location.href = "/login";
         }
     } catch (error) {
-        console.error("Oops! Error during signup:", error);
-
-        if (error.status === 403) {
-            alert("회원가입에 실패하였습니다. 이유: " + error.message);
-            window.location.href = "/auth/signup";
-        }
+        console.error("회원가입 오류:", error);
 
         throw error;
     }
@@ -74,11 +69,17 @@ export const signout = () => {
 }
 
 export const update = async userDTO => {
-    const response = await call("/auth/update", "POST", userDTO);
+    try {
+        const response = await call("/auth/update", "POST", userDTO);
+    
+        if (response) {
+            alert('회원 정보 수정이 완료되었습니다.')
+            localStorage.setItem(username, response.username);
+        }
+    } catch (error) {
+        console.error("회원 정보 수정 오류:", error);
 
-    if (response) {
-        console.log(response);
-        localStorage.setItem(username, response.username);
+        throw error;
     }
 }
 
