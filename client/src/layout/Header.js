@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styled, { keyframes } from 'styled-components';
 import Chat from './Chat';
 import Notification from './Notification';
+import { signout } from "../service/ApiService";
 
 const StyledHeader = styled.div`
     width: calc(100% - 160px);
@@ -181,7 +182,7 @@ const ChatIconWithBadge = styled.div`
 
 const Header = () => {
     const navigate = useNavigate();
-    const userExists = !!localStorage.getItem('user');
+    const userExists = !!localStorage.getItem('username');
     const [isChatOpen, setChatOpen] = useState(false);
     const [isNotiOpen, setNotiOpen] = useState(false);
 
@@ -254,29 +255,31 @@ const Header = () => {
 
                 <CateBtn>
                     <Link to='/list'>멤버 모집</Link>
-                    <Link to='/list/my'>내 프로젝트</Link>
-                    <ChatIconWithBadge>
-                        <a onClick={() => setChatOpen(true)}>채팅</a>
-                        {unreadChatCount > 0 && (
-                            <span className="badge">{unreadChatCount}</span>
-                        )}
-                    </ChatIconWithBadge>
-                    <ChatIconWithBadge>
-                        <a onClick={() => setNotiOpen(true)}>알림</a>
-                        {unreadNotificationCount > 0 && (
-                            <span className="badge">{unreadNotificationCount}</span>
-                        )}
-                    </ChatIconWithBadge>
-                    {/* {userExists && <Link to='/list/my'>내 프로젝트</Link>}
-{userExists && <Link to='/chat'>채팅</Link>}
-{userExists && <Link to='/notice'>알림</Link>} */}
+                    {userExists && <Link to='/list/my'>내 프로젝트</Link>}
+                    {userExists &&
+                        <>
+                            <ChatIconWithBadge>
+                                <a onClick={() => setChatOpen(true)}>채팅</a>
+                                {unreadChatCount > 0 && (
+                                    <span className="badge">{unreadChatCount}</span>
+                                )}
+                            </ChatIconWithBadge>
+                        </>
+                    }
+                    {userExists &&
+                        <>
+                            <ChatIconWithBadge>
+                                <a onClick={() => setNotiOpen(true)}>알림</a>
+                                {unreadNotificationCount > 0 && (
+                                    <span className="badge">{unreadNotificationCount}</span>
+                                )}
+                            </ChatIconWithBadge>
+                        </>}
                 </CateBtn>
 
                 <MenuBtn>
-                    <TransBtn><a onClick={handleLogout}>로그아웃</a></TransBtn>
-                    <BlackBtn><Link to='/mypage'>마이페이지</Link></BlackBtn>
-                    {/* {userExists && <Link to='/mypage'>마이페이지</Link>}
-                {userExists && <a onClick={handleLogout}>로그아웃</a>} */}
+                    {userExists && <TransBtn><a onClick={signout}>로그아웃</a></TransBtn>}
+                    {userExists && <BlackBtn><Link to='/mypage'>마이페이지</Link></BlackBtn>}
                     {!userExists && <TransBtn><Link to='/login'>로그인</Link></TransBtn>}
                     {!userExists && <BlackBtn><Link to='/signup'>회원가입</Link></BlackBtn>}
                 </MenuBtn>
