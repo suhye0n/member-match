@@ -53,7 +53,6 @@ const Button = styled.button`
     }
 `;
 
-
 const InputWithIcon = styled.div`
   position: relative;
   width: calc(100% - 28px);
@@ -212,6 +211,7 @@ function SignUp() {
                     alert("인증 코드가 일치하지 않습니다.");
                   } else {
                     alert("인증 코드가 확인되었습니다!");
+                    localStorage.removeItem('verificationCode');
                   }
                 }}
               >

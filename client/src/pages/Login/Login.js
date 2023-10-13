@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
+import { signin } from "../../service/ApiService";
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 const Container = styled.div`
   display: flex;
@@ -33,7 +35,7 @@ const Button = styled.button`
   display: inline;
   width: calc(100% - 28px);
   max-width: 358px;
-  margin-top: 14px;
+  margin: 14px 0;
   padding: 0.5rem 1rem;
   font-size: 1rem;
   background: #000;
@@ -62,44 +64,85 @@ const StyledLink = styled(Link)`
   }
 `;
 
+const InputWithIcon = styled.div`
+  position: relative;
+  width: calc(100% - 28px);
+  max-width: 358px;
+`;
+
+const Icon = styled.div`
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  cursor: pointer;
+`;
+
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = async () => {
+  const handlePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const data = new FormData(event.target);
+    const email = data.get("email");
+    const password = data.get("password");
+
     try {
-      
-
-      // localStorage.setItem('user', JSON.stringify({ nickname: nickname, uid: uid }));
-
-      alert('로그인이 완료되었습니다.');
-      navigate('/');
-      window.location.reload();
+      await signin({ email, password })
     } catch (error) {
-      console.error('로그인 실패:', error);
+      alert("로그인에 실패했습니다.");
     }
   };
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem('ACCESS_TOKEN');
+
+    if (accessToken) {
+      window.location.href = "/";
+      return;
+    }
+  }, [])
 
   return (
     <Container>
       <Title>로그인</Title>
-      <span>이메일 주소</span>
-      <Input
-        type="email"
-        placeholder="이메일 주소"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <span>비밀번호</span>
-      <Input
-        type="password"
-        placeholder="비밀번호"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <Button onClick={handleLogin}>로그인</Button>
-      <StyledLink to="/reset">비밀번호를 잊으셨나요?</StyledLink>
+      <form onSubmit={handleSubmit}>
+        <div>이메일 주소</div>
+        <Input
+          autoComplete="email"
+          name="email"
+          required
+          id="email"
+          placeholder="이메일 주소"
+        />
+        <div>비밀번호</div>
+        <InputWithIcon>
+          <Input
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            name="password"
+            required
+            id="password"
+            placeholder="비밀번호"
+          />
+          <Icon onClick={handlePasswordVisibility}>
+            {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+          </Icon>
+        </InputWithIcon>
+        <Button
+          type="submit"
+          variant
+        >
+          로그인
+        </Button>
+        <br />
+        <StyledLink to="/reset">비밀번호를 잊으셨나요?</StyledLink>
+      </form>
     </Container>
   );
 };
