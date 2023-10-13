@@ -5,8 +5,9 @@ import org.springframework.stereotype.Repository;
 import com.todo.server.model.UserEntity;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, String>{
-	UserEntity findByEmail(String email);
-	Boolean existsByEmail(String email);
-	UserEntity findByEmailAndPassword(String email, String password);
+public interface UserRepository extends JpaRepository<UserEntity, String> {
+    UserEntity findByEmail(String email);
+    Boolean existsByEmail(String email);
+    Boolean existsByUsername(String username);
+    UserEntity findByEmailAndPassword(String email, String password);
 }

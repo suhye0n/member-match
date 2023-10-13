@@ -97,3 +97,83 @@ export const withdrawal = async userDTO => {
         throw error;
     }
 }
+
+export const addProject = async projDTO => {
+    try {
+        const response = await call("/proj/add", "POST", projDTO);
+
+        if (response) {
+            alert("프로젝트가 추가되었습니다.");
+        }
+    } catch (error) {
+        console.error("프로젝트 추가 오류:", error);
+
+        throw error;
+    }
+}
+
+export const getAllProjects = async () => {
+    try {
+        const response = await call("/proj/all", "GET");
+
+        return response;
+    } catch (error) {
+        console.error("프로젝트 불러오기 오류:", error);
+
+        throw error;
+    }
+}
+
+export const deleteProject = async projectId => {
+    try {
+        const response = await call(`/proj/delete/${projectId}`, "DELETE");
+
+        if (response) {
+            alert("프로젝트가 삭제되었습니다.");
+        }
+    } catch (error) {
+        console.error("프로젝트 삭제 오류:", error);
+
+        throw error;
+    }
+}
+
+export const updateProject = async (projectId, projDTO) => {
+    try {
+        const response = await call(`/proj/update/${projectId}`, "PUT", projDTO);
+
+        if (response) {
+            alert("프로젝트가 업데이트되었습니다.");
+        }
+    } catch (error) {
+        console.error("프로젝트 업데이트 오류:", error);
+
+        throw error;
+    }
+}
+
+// export const sendMessage = async chatDTO => {
+//     try {
+//         const response = await call("/chat/send", "POST", chatDTO);
+    
+//         if (response) {
+//         }
+//     } catch (error) {
+//         console.error("채팅 전송 오류:", error);
+
+//         throw error;
+//     }
+// }
+
+// export const getMessage = async chatDTO => {
+//     try {
+//         const response = await call("/chat/all", "GET", chatDTO);
+    
+//         if (response) {
+//         }
+//     } catch (error) {
+//         console.error("채팅 불러오기 오류:", error);
+
+//         throw error;
+//     }
+// }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
 import { CgProfile } from 'react-icons/cg';
+import { addProject, getAllProjects, deleteProject, updateProject } from "../../service/ApiService";
 
 const Heading = styled.div`
     display: flex;
@@ -157,28 +158,41 @@ const Select = styled.select`
 `;
 
 const List = () => {
-    const data = [
-        {
-            projectName: "프로젝트 1",
-            category: "게임",
-            techStack: ["React", "Node.js", "MongoDB"],
-            positions: ["포지션1 0/3", "포지션2 1/1"],
-        },
-        {
-            projectName: "프로젝트 2",
-            category: "뉴스/정보",
-            techStack: ["React", "Redux", "Node.js"],
-            positions: ["포지션1 2/4", "포지션2 0/2"],
-        },
-        {
-            projectName: "프로젝트 3",
-            category: "유틸",
-            techStack: ["Vue.js", "Node.js", "MongoDB"],
-            positions: ["포지션1 1/2", "포지션2 1/1"],
-        },
-    ];
-
+    const [projects, setProjects] = useState([]);
     const [isModalOpen, setModalOpen] = useState(false);
+    const [selectedPosition, setSelectedPosition] = useState("");
+    const [question1, setQuestion1] = useState("");
+    const [question2, setQuestion2] = useState("");
+
+    useEffect(() => {
+        loadProjects();
+    }, []);
+
+    const loadProjects = async () => {
+        try {
+            const response = await getAllProjects();
+            setProjects(response);
+        } catch (error) {
+            console.error("프로젝트 불러오기 오류:", error);
+        }
+    }
+
+    const handleApplyClick = () => {
+        setModalOpen(true);
+    }
+
+    const handleApplyCancel = () => {
+        setModalOpen(false);
+    }
+
+    const handleApplySubmit = async () => {
+        if (selectedPosition === "" || question1 === "" || question2 === "") {
+            alert("포지션과 질문을 모두 입력해야 합니다.");
+            return;
+        }
+
+        setModalOpen(false);
+    }
 
     return (
         <>
@@ -187,55 +201,70 @@ const List = () => {
             </Heading>
 
             <Container>
-                {data.map((item, index) => (
+                {projects.map((project, index) => (
                     <ListItem key={index}>
-                        <Link to='/project'>
-                            <h2>{item.projectName}</h2>
+                        <Link to={`/project?id=${project.key}`}>
+                            <h2>{project.title}</h2>
                             <div>
                                 <span><BiCategory /></span>
-                                <span>#{item.category}</span>
+                                <span>#{project.cate}</span>
                             </div>
                             <div>
                                 <span><BiLogoReact /></span>
-                                {item.techStack.map((tech, techIndex) => (
-                                    <span key={techIndex}>#{tech}</span>
-                                ))}
+                                <span>{project.stack.map((stack, index) => (
+                                    <span key={index}>#{stack}</span>
+                                ))}</span>
                             </div>
                             <div>
                                 <span><CgProfile /></span>
-                                {item.positions.map((position, positionIndex) => (
-                                    <span key={positionIndex}>
-                                        {position}
-                                        {positionIndex < item.positions.length - 1 ? ',' : ''}
-                                    </span>
-                                ))}
+                                <span>
+                                    {Object.keys(project.recruitment).map((position, index) => {
+                    console.log(project);
+                                        const recruitmentCount = project.recruitment[position];
+                                        const applicantsCount = project.applicants.filter(applicant => applicant.position == position).length;
+
+                                        return (
+                                            <span key={index}>
+                                                {`${position} ${applicantsCount}/${recruitmentCount}`}
+                                            </span>
+                                        );
+                                    })}
+                                </span>
+
                             </div>
                         </Link>
-                        <button onClick={() => setModalOpen(true)}>지원하기</button>
+                        <button onClick={handleApplyClick}>지원하기</button>
                     </ListItem>
                 ))}
 
                 {isModalOpen && (
                     <>
-                        <BlurBackground open={isModalOpen} onClick={() => setModalOpen(false)} />
+                        <BlurBackground open={isModalOpen} onClick={handleApplyCancel} />
                         <Modal open={isModalOpen}>
                             <h2>멤버 신청</h2>
-                            <Select>
-                                <option>-- 포지션 선택 --</option>
-                                <option>React</option>
-                                <option>Node.js</option>
-                                <option>MongoDB</option>
-                                <option>Express</option>
-                                <option>HTML</option>
-                                <option>CSS</option>
-                                <option>JavaScript</option>
+                            <Select
+                                value={selectedPosition}
+                                onChange={(e) => setSelectedPosition(e.target.value)}
+                            >
+                                <option value="">-- 포지션 선택 --</option>
+                                {Object.keys(projects[0].recruitment).map((position, index) => (
+                                    <option key={index} value={position}>{position}</option>
+                                ))}
                             </Select>
                             <span>신청 질문 1</span>
-                            <Input />
+                            <Input
+                                type="text"
+                                value={question1}
+                                onChange={(e) => setQuestion1(e.target.value)}
+                            />
                             <span>신청 질문 2</span>
-                            <Input />
-                            <button>완료</button>
-                            <button className='cancel' onClick={() => setModalOpen(false)}>취소</button>
+                            <Input
+                                type="text"
+                                value={question2}
+                                onChange={(e) => setQuestion2(e.target.value)}
+                            />
+                            <button onClick={handleApplySubmit}>완료</button>
+                            <button className='cancel' onClick={handleApplyCancel}>취소</button>
                         </Modal>
                     </>
                 )}

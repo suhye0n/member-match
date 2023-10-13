@@ -118,6 +118,7 @@ const ChatModal = styled.div`
     border-radius: 10px;
     box-shadow: 0px 2px 4px 0px #eceae5;
     width: 90%;
+    min-height: 40%;
     max-height: 80%;
     max-width: 850px;
     overflow: auto;
