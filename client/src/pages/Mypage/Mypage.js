@@ -196,7 +196,7 @@ const Mypage = () => {
         <Button>회원정보 수정</Button>
         </form>
 
-        <StyledLink>회원 탈퇴하시려면 여기를 클릭해주세요.</StyledLink>
+        <StyledLink onClick={handleWithdrawal}>회원 탈퇴하시려면 여기를 클릭해주세요.</StyledLink>
       
     </Container>
   );
