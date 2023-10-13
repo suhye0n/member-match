@@ -87,7 +87,7 @@ const Login = () => {
       <span>이메일 주소</span>
       <Input
         type="email"
-        placeholder="이메일"
+        placeholder="이메일 주소"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />

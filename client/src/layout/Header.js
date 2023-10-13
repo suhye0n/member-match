@@ -253,8 +253,6 @@ const Header = () => {
                 </Link>
 
                 <CateBtn>
-                    <Link to='/about'>소개</Link>
-                    <Link to='/notice'>공지사항</Link>
                     <Link to='/list'>멤버 모집</Link>
                     <Link to='/list/my'>내 프로젝트</Link>
                     <ChatIconWithBadge>

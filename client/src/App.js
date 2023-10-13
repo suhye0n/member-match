@@ -2,13 +2,11 @@ import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './layout/Header';
 import Footer from './layout/Footer';
-import About from './pages/About/About';
 import List from './pages/List/List';
 import MyList from './pages/List/MyList';
 import Login from './pages/Login/Login';
 import Main from './pages/Main/Main';
 import Mypage from './pages/Mypage/Mypage';
-import Notice from './pages/Notice/Notice';
 import Project from './pages/Project/Project';
 import Reset from './pages/Reset/Reset';
 import Signup from './pages/Signup/Signup';
@@ -22,11 +20,9 @@ function App() {
             <Route path="/" element={<Main />}></Route>
             <Route path="/signup" element={<Signup />}></Route>
             <Route path="/login" element={<Login />}></Route>
-            <Route path="/about" element={<About />}></Route>
             <Route path="/list" element={<List />}></Route>
             <Route path="/list/my" element={<MyList />}></Route>
             <Route path="/mypage" element={<Mypage />}></Route>
-            <Route path="/notice" element={<Notice />}></Route>
             <Route path="/reset" element={<Reset />}></Route>
             <Route path="/project" element={<Project />}></Route>
           </Routes>
