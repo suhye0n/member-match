@@ -138,12 +138,26 @@ export const deleteProject = async projectId => {
     }
 }
 
+export const apply = async (projectId, projDTO) => {
+    try {
+        const response = await call(`/proj/update/${projectId}`, "PUT", projDTO);
+
+        if (response) {
+            alert("멤버 지원이 완료되었습니다.");
+        }
+    } catch (error) {
+        console.error("멤버 지원 오류:", error);
+
+        throw error;
+    }
+}
+
 export const updateProject = async (projectId, projDTO) => {
     try {
         const response = await call(`/proj/update/${projectId}`, "PUT", projDTO);
 
         if (response) {
-            alert("프로젝트가 업데이트되었습니다.");
+            alert("프로젝트가 업데이트 되었습니다.");
         }
     } catch (error) {
         console.error("프로젝트 업데이트 오류:", error);

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
 import { CgProfile } from 'react-icons/cg';
-import { getAllProjects, updateProject } from "../../service/ApiService";
+import { getAllProjects, apply } from "../../service/ApiService";
 
 const Heading = styled.div`
     display: flex;
@@ -19,6 +19,22 @@ const Container = styled.div`
     flex-direction: column;
     padding: 50px 20% 50px 20%;
     background: #fff;
+`;
+
+const WriteButton = styled.button`
+    background-color: #000;
+    color: #fff;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: .4s;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+        opacity: 0.7;
+    }
 `;
 
 const ListItem = styled.div`
@@ -165,6 +181,7 @@ const List = () => {
     const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState([]);
     const [username, setUsername] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadProjects();
@@ -217,16 +234,16 @@ const List = () => {
         selectedProject.applicants.push(newApplicant);
 
         try {
-            const updatedProject = await updateProject(selectedProject.key, selectedProject);
-            if (updatedProject) {
+            const apply = await apply(selectedProject.key, selectedProject);
+            if (apply) {
                 setModalOpen(false);
-                const updatedProjects = projects.map(item =>
-                    item.key === selectedProject.key ? updatedProject : item
+                const applys = projects.map(item =>
+                    item.key === selectedProject.key ? apply : item
                 );
-                setProjects(updatedProjects);
+                setProjects(applys);
             }
         } catch (error) {
-            console.error("멤버 추가 오류:", error);
+            console.error("멤버 지원 오류:", error);
         }
     }
 
@@ -234,6 +251,9 @@ const List = () => {
         <>
             <Heading>
                 <h1>멤버 모집</h1>
+                <Link to="/write">
+                    <WriteButton>글쓰기</WriteButton>
+                </Link>
             </Heading>
 
             <Container>

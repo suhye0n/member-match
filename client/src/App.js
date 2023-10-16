@@ -10,6 +10,7 @@ import Mypage from './pages/Mypage/Mypage';
 import Project from './pages/Project/Project';
 import Reset from './pages/Reset/Reset';
 import Signup from './pages/Signup/Signup';
+import Write from './pages/Write/Write';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/mypage" element={<Mypage />}></Route>
             <Route path="/reset" element={<Reset />}></Route>
             <Route path="/project" element={<Project />}></Route>
+            <Route path="/write" element={<Write />}></Route>
           </Routes>
       </BrowserRouter>
     </>
