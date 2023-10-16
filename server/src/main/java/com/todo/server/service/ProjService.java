@@ -31,17 +31,45 @@ public class ProjService {
         Optional<ProjEntity> existingEntity = projRepository.findById(id);
         if (existingEntity.isPresent()) {
             ProjEntity updatedEntity = existingEntity.get();
-            updatedEntity.setTitle(projEntity.getTitle());
-            updatedEntity.setDesc(projEntity.getDesc());
-            updatedEntity.setCate(projEntity.getCate());
-            updatedEntity.setStack(projEntity.getStack());
-            updatedEntity.setMember(projEntity.getMember());
-            updatedEntity.setApplicants(projEntity.getApplicants());
-            updatedEntity.setRecruitment(projEntity.getRecruitment());
-            updatedEntity.setQuestion(projEntity.getQuestion());
-            updatedEntity.setRecdate(projEntity.getRecdate());
-            updatedEntity.setCreatedate(projEntity.getCreatedate());
-            updatedEntity.setStatus(projEntity.isStatus());
+
+            if (projEntity.getTitle() != null) {
+                updatedEntity.setTitle(projEntity.getTitle());
+            }
+            if (projEntity.getDesc() != null) {
+                updatedEntity.setDesc(projEntity.getDesc());
+            }
+            if (projEntity.getCate() != null) {
+                updatedEntity.setCate(projEntity.getCate());
+            }
+            if (projEntity.getStack() != null) {
+                updatedEntity.setStack(projEntity.getStack());
+            }
+            if (projEntity.getMember() != null) {
+                updatedEntity.setMember(projEntity.getMember());
+            }
+            if (projEntity.getApplicants() != null) {
+                updatedEntity.getApplicants().clear();
+                updatedEntity.getApplicants().addAll(projEntity.getApplicants());
+            }
+            if (projEntity.getRecruitment() != null) {
+                updatedEntity.setRecruitment(projEntity.getRecruitment());
+            }
+            if (projEntity.getQuestion() != null) {
+                updatedEntity.setQuestion(projEntity.getQuestion());
+            }
+            if (projEntity.getRecdate() != null) {
+                updatedEntity.setRecdate(projEntity.getRecdate());
+            }
+            if (projEntity.getCreatedate() != null) {
+                updatedEntity.setCreatedate(projEntity.getCreatedate());
+            }
+            if (projEntity.isStatus() == true) {
+                updatedEntity.setStatus(projEntity.isStatus());
+            }
+            if (projEntity.isStatus() == false) {
+                updatedEntity.setStatus(projEntity.isStatus());
+            }
+
             return projRepository.save(updatedEntity);
         }
         return null;
