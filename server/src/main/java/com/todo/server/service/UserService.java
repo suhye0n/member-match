@@ -61,4 +61,15 @@ public class UserService {
     public void updateUser(final UserEntity userEntity) {
         userRepository.save(userEntity);
     }
+    
+    public String getUserIdByEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email);
+
+        if (user != null) {
+            return user.getId();
+        } else {
+            log.warn("사용자를 찾을 수 없음: {}", email);
+            return null;
+        }
+    }
 }

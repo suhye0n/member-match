@@ -152,6 +152,76 @@ export const updateProject = async (projectId, projDTO) => {
     }
 }
 
+export const addCalendarEvent = async calendarDTO => {
+    try {
+        const response = await call("/calendar/create", "POST", calendarDTO);
+
+        if (response) {
+            alert("캘린더 이벤트가 추가되었습니다.");
+        }
+    } catch (error) {
+        console.error("캘린더 이벤트 추가 오류:", error);
+
+        throw error;
+    }
+}
+
+export const getAllCalendarEvents = async () => {
+    try {
+        const response = await call("/calendar/all", "GET");
+
+        return response;
+    } catch (error) {
+        console.error("캘린더 이벤트 불러오기 오류:", error);
+
+        throw error;
+    }
+}
+
+export const updateCalendarEvent = async (eventId, calendarDTO) => {
+    try {
+        const response = await call(`/calendar/update/${eventId}`, "PUT", calendarDTO);
+
+        if (response) {
+            alert("캘린더 이벤트가 업데이트되었습니다.");
+        }
+    } catch (error) {
+        console.error("캘린더 이벤트 업데이트 오류:", error);
+
+        throw error;
+    }
+}
+
+export const deleteCalendarEvent = async eventId => {
+    try {
+        const response = await call(`/calendar/delete/${eventId}`, "DELETE");
+
+        if (response) {
+            alert("캘린더 이벤트가 삭제되었습니다.");
+        }
+    } catch (error) {
+        console.error("캘린더 이벤트 삭제 오류:", error);
+
+        throw error;
+    }
+}
+
+export const findId = async (email) => {
+    try {
+        const response = await call(`/auth/find/${email}`, "GET");
+
+        if (response && response.id) {
+            return response.id;
+        } else {
+            console.error("사용자 이메일을 찾을 수 없음:", email);
+            return null;
+        }
+    } catch (error) {
+        console.error("사용자 찾기 에러:", error);
+        throw error;
+    }
+}
+
 // export const sendMessage = async chatDTO => {
 //     try {
 //         const response = await call("/chat/send", "POST", chatDTO);

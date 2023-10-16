@@ -242,11 +242,6 @@ const Header = () => {
         return count + chat.messages.filter((message) => !message.read).length;
     }, 0);
 
-    const handleLogout = () => {
-        localStorage.removeItem('user');
-        navigate('/login');
-    };
-
     return (
         <>
             <StyledHeader>
