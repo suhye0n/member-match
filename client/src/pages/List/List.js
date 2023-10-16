@@ -21,22 +21,6 @@ const Container = styled.div`
     background: #fff;
 `;
 
-const WriteButton = styled.button`
-    background-color: #000;
-    color: #fff;
-    font-size: 1rem;
-    border: none;
-    border-radius: 5px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: .4s;
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
-
-    &:hover {
-        opacity: 0.7;
-    }
-`;
-
 const ListItem = styled.div`
     display: flex;
     flex-direction: column;
@@ -234,13 +218,13 @@ const List = () => {
         selectedProject.applicants.push(newApplicant);
 
         try {
-            const apply = await apply(selectedProject.key, selectedProject);
-            if (apply) {
+            const updatedProject = await apply(selectedProject.key, selectedProject);
+            if (updatedProject) {
                 setModalOpen(false);
-                const applys = projects.map(item =>
-                    item.key === selectedProject.key ? apply : item
+                const updatedProjects = projects.map(item =>
+                    item.key === selectedProject.key ? updatedProject : item
                 );
-                setProjects(applys);
+                setProjects(updatedProjects);
             }
         } catch (error) {
             console.error("멤버 지원 오류:", error);
@@ -251,9 +235,6 @@ const List = () => {
         <>
             <Heading>
                 <h1>멤버 모집</h1>
-                <Link to="/write">
-                    <WriteButton>글쓰기</WriteButton>
-                </Link>
             </Heading>
 
             <Container>

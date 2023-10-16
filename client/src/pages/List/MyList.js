@@ -45,6 +45,22 @@ const ListItem = styled.div`
     }   
 `;
 
+const WriteButton = styled.button`
+    background-color: #000;
+    color: #fff;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: .4s;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+        opacity: 0.7;
+    }
+`;
+
 const MyList = () => {
     const data = [
         {
@@ -71,6 +87,9 @@ const MyList = () => {
         <>
             <Heading>
                 <h1>내 프로젝트</h1>
+                <Link to="/write">
+                    <WriteButton>글쓰기</WriteButton>
+                </Link>
             </Heading>
 
             <Container>

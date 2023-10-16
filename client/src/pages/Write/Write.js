@@ -21,9 +21,13 @@ const Title = styled.h1`
   padding: 30px 0;
 `;
 
+const Span = styled.span`
+  margin-top: 30px;
+`;
+
 const Input = styled.input`
   padding: 14px;
-  margin: 8px 0 20px 0;
+  margin: 8px 0 0 0;
   width: calc(100% - 28px);
   max-width: 330px;
   border-radius: 5px;
@@ -48,14 +52,14 @@ const Button = styled.button`
   overflow-wrap: break-word;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
 
-    &:hover {
-        opacity: 0.7;
-    }
+  &:hover {
+    opacity: 0.7;
+  }
 `;
 
 const Textarea = styled.textarea`
   padding: 14px;
-  margin: 8px 0 20px 0;
+  margin: 8px 0 2px 0;
   width: calc(100% - 28px);
   height: 90px;
   max-width: 330px;
@@ -65,13 +69,23 @@ const Textarea = styled.textarea`
   resize: none;
 `;
 
+const Suggestion = styled.div`
+  background: #ccc;
+  padding: 5px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-right: 5px;
+  cursor: pointer;
+`;
+
 const Write = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [techStack, setTechStack] = useState('');
+  const [category, setCategory] = useState('#');
+  const [techStack, setTechStack] = useState('#');
   const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [techStacks, setTechStacks] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [techSuggestions, setTechSuggestions] = useState([]);
@@ -82,19 +96,48 @@ const Write = () => {
   const getSuggestions = (value, suggestionsArray) => {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
-
-    if (inputLength === 0 || inputValue === "#") {
-      return suggestionsArray;
+  
+    if (inputLength < 1) {
+      return [];
     }
+  
+    const searchValue = inputValue[0] === '#' ? inputValue.substring(1) : inputValue;
+  
+    return suggestionsArray.filter(item => {
+      const lowercasedItem = item.toLowerCase();
+      return lowercasedItem.includes(searchValue);
+    });
+  };  
 
-    return suggestionsArray.filter(item => item.toLowerCase().includes(inputValue));
+  const SelectedCategories = ({ selectedCategory, removeCategory }) => {
+    return selectedCategory ? (
+      <div className="selected-category" onClick={() => removeCategory(selectedCategory)}>
+        #{selectedCategory} &times;
+      </div>
+    ) : null;
+  };   
+  
+  const SelectedTechStacks = ({ techStacks, removeTechStack }) => {
+    return (
+      <div>
+        {techStacks.map((techStack, index) => (
+          <div key={index} className="selected-tech-stack" onClick={() => removeTechStack(techStack)}>
+            #{techStack} &times;
+          </div>
+        ))}
+      </div>
+    );
   };
 
-
   const renderSuggestion = suggestion => (
-    <div>
-      {suggestion}
-    </div>
+    <Suggestion onClick={() => handleCategorySuggestionClick(suggestion)}>
+      #{suggestion}
+    </Suggestion>
+  );
+  const renderTechSuggestion = suggestion => (
+    <Suggestion onClick={() => handleTechStackSuggestionClick(suggestion)}>
+      #{suggestion}
+    </Suggestion>
   );
 
   const onSuggestionsFetchRequested = ({ value }) => {
@@ -113,62 +156,101 @@ const Write = () => {
     setTechSuggestions([]);
   };
 
+  const handleCategorySuggestionClick = (suggestion) => {
+    setCategory('#' + suggestion);
+    setSelectedCategory(suggestion);
+  };  
+
+  const handleTechStackSuggestionClick = (suggestion) => {
+    setTechStack('#' + suggestion);
+    setTechStacks([...techStacks, suggestion]);
+  };  
+
   const handleCategoryChange = (event, { newValue }) => {
-    setCategory(newValue);
+    setCategory(newValue.startsWith('#') ? newValue : `#${newValue}`);
   };
 
   const handleTechStackChange = (event, { newValue }) => {
-    setTechStack(newValue);
+    setTechStack(newValue.startsWith('#') ? newValue : `#${newValue}`);
   };
 
-  const renderInputComponent = inputProps => (
-    <Input {...inputProps} />
-  );
+
+  const removeCategory = (categoryToRemove) => {
+    if (selectedCategory === categoryToRemove) {
+      setSelectedCategory('');
+    }
+  };  
+
+  const removeTechStack = (techStackToRemove) => {
+    const updatedTechStacks = techStacks.filter(techStack => techStack !== techStackToRemove);
+    setTechStacks(updatedTechStacks);
+  };
 
   const categoryInputProps = {
     placeholder: '카테고리',
     value: category,
+    defaultValue: '#',
     onChange: handleCategoryChange,
-  };
-
+  };  
+  
   const techStackInputProps = {
     placeholder: '기술 스택',
     value: techStack,
+    defaultValue: '#',
     onChange: handleTechStackChange,
   };
 
+  const renderInputComponent = inputProps => (
+    <Input {...inputProps} />
+  );  
+
   const handleSubmit = () => {
+    if (!title || title.trim() === '') {
+      console.error('제목을 입력하세요.');
+      return;
+    }
+  
+    const cleanCategory = category.replace(/^#/, '');
+    const cleanTechStacks = techStacks.map(stack => stack.replace(/^#/, ''));
+
+    const currentDate = new Date().toISOString();
+  
     const projectData = {
       title,
-      description,
-      category: categories,
-      techStack: techStacks,
+      desc: description,
+      createdate: currentDate,
+      cate: cleanCategory,
+      stack: cleanTechStacks,
     };
-    // addProject(projectData).then(response => {
-    //   console.log('프로젝트 추가 성공:', response);
-    //   navigate('/list/my');
-    // }).catch(error => {
-    //   console.error('프로젝트 추가 오류:', error);
-    // });
-  };
+  
+    addProject(projectData)
+      .then(response => {
+        console.log('프로젝트 추가 성공:', response);
+        navigate('/list/my');
+      })
+      .catch(error => {
+        console.error('프로젝트 추가 오류:', error);
+      });
+  };  
 
   return (
     <Container>
       <Title>프로젝트 등록</Title>
-      <span>제목</span>
+      <Span>제목</Span>
       <Input
         type="text"
         placeholder="제목"
         value={title}
         onChange={e => setTitle(e.target.value)}
       />
-      <span>프로젝트 설명</span>
+      <Span>프로젝트 설명</Span>
       <Textarea
         placeholder="프로젝트 설명"
         value={description}
         onChange={e => setDescription(e.target.value)}
       />
-      <span>카테고리</span>
+      <Span>카테고리</Span>
+      <SelectedCategories selectedCategory={selectedCategory} removeCategory={removeCategory} />
       <Autosuggest
         suggestions={suggestions}
         onSuggestionsFetchRequested={onSuggestionsFetchRequested}
@@ -178,13 +260,14 @@ const Write = () => {
         inputProps={categoryInputProps}
         renderInputComponent={renderInputComponent}
       />
-      <span>기술 스택</span>
+      <Span>기술 스택</Span>
+      <SelectedTechStacks techStacks={techStacks} removeTechStack={removeTechStack} />
       <Autosuggest
         suggestions={techSuggestions}
         onSuggestionsFetchRequested={onTechSuggestionsFetchRequested}
         onSuggestionsClearRequested={onTechSuggestionsClearRequested}
         getSuggestionValue={suggestion => suggestion}
-        renderSuggestion={renderSuggestion}
+        renderSuggestion={renderTechSuggestion}
         inputProps={techStackInputProps}
         renderInputComponent={renderInputComponent}
       />
