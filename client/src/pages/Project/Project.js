@@ -249,9 +249,15 @@ const Button = styled.button`
     }
 `;
 
+const MemberTitle = styled.h2`
+  font-size: 24px;
+  margin-bottom: 10px;
+`;
+
 const Project = () => {
     const [projects, setProjects] = useState([]);
     const [applicants, setApplicants] = useState([]);
+    const [members, setMembers] = useState([]);
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const projectId = queryParams.get('id');
@@ -302,6 +308,7 @@ const Project = () => {
                 const selectedProject = response.find(project => project.key == projectId);
                 if (selectedProject) {
                     setApplicants(selectedProject.applicants);
+                    setMembers(selectedProject.member)
                 }
             } catch (error) {
                 console.error("프로젝트 불러오기 오류:", error);
@@ -428,51 +435,41 @@ const Project = () => {
 
             <Container>
                 <ListItem>
-                    <h2>멤버 지원자</h2>
-
-                    <div>
-                        <p>홍길동</p>
+                    <MemberTitle>멤버 지원자</MemberTitle>
+                    {applicants.map((applicant, index) => (
+                    <div key={index}>
+                        <p>{applicant.name}</p>
                         <Rate>★★★★☆</Rate>
-                        <div className='btns'>
-                            <BlackBtn onClick={() => setAnswerOpen(true)}>답변</BlackBtn>
-                            <BlackBtn>승인</BlackBtn>
-                            <BlackBtn>거절</BlackBtn>
+                        <div className="btns">
+                        <BlackBtn onClick={() => setAnswerOpen(true)}>답변</BlackBtn>
+                        <BlackBtn>승인</BlackBtn>
+                        <BlackBtn>거절</BlackBtn>
                         </div>
                     </div>
-
-                    <div>
-                        <p>홍길동</p>
-                        <Rate>★★★★☆</Rate>
-                        <div className='btns'>
-                            <BlackBtn onClick={() => setAnswerOpen(true)}>답변</BlackBtn>
-                            <BlackBtn>승인</BlackBtn>
-                            <BlackBtn>거절</BlackBtn>
-                        </div>
-                    </div>
+                    ))}
                 </ListItem>
 
                 <ListItem>
-                    <h2>멤버</h2>
-
-                    <div>
-                        <p>박길동 (팀장)</p>
-                        <div className='btns'>
-                            <TransBtn onClick={() => setProfileOpen(true)}><CgProfile /> 프로필 보기</TransBtn>
-                            <TransBtn onClick={() => setChatOpen(true)}><MdChatBubbleOutline /> 1:1 채팅하기</TransBtn>
-                            <TransBtn onClick={() => setRateOpen(true)}><MdStarBorder /> 평가하기</TransBtn>
-                            <TransBtn onClick={() => setReportOpen(true)}><MdOutlineReportGmailerrorred /> 신고하기</TransBtn>
+                    <MemberTitle>멤버</MemberTitle>
+                    {members.map((memberName, index) => (
+                    <div key={index}>
+                        <p>{memberName}</p>
+                        <div className="btns">
+                        <TransBtn onClick={() => setProfileOpen(true)}>
+                            <CgProfile /> 프로필 보기
+                        </TransBtn>
+                        <TransBtn onClick={() => setChatOpen(true)}>
+                            <MdChatBubbleOutline /> 1:1 채팅하기
+                        </TransBtn>
+                        <TransBtn onClick={() => setRateOpen(true)}>
+                            <MdStarBorder /> 평가하기
+                        </TransBtn>
+                        <TransBtn onClick={() => setReportOpen(true)}>
+                            <MdOutlineReportGmailerrorred /> 신고하기
+                        </TransBtn>
                         </div>
                     </div>
-
-                    <div>
-                        <p>김길동 (프론트엔드)</p>
-                        <div className='btns'>
-                            <TransBtn onClick={() => setProfileOpen(true)}><CgProfile /> 프로필 보기</TransBtn>
-                            <TransBtn onClick={() => setChatOpen(true)}><MdChatBubbleOutline /> 1:1 채팅하기</TransBtn>
-                            <TransBtn onClick={() => setRateOpen(true)}><MdStarBorder /> 평가하기</TransBtn>
-                            <TransBtn onClick={() => setReportOpen(true)}><MdOutlineReportGmailerrorred /> 신고하기</TransBtn>
-                        </div>
-                    </div>
+                    ))}
                 </ListItem>
 
                 <CustomCalendar />
