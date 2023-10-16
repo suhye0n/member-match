@@ -222,6 +222,20 @@ export const findId = async (email) => {
     }
 }
 
+export const resetPassword = async (id, newPassword) => {
+    try {
+        const response = await call(`/auth/reset?id=${id}&newPassword=${newPassword}`, "POST");
+
+        if (response.message) {
+            alert('비밀번호가 성공적으로 재설정되었습니다.');
+            window.location.href = "/login";
+        }
+    } catch (error) {
+        console.error("비밀번호 재설정 오류:", error);
+        throw error;
+    }
+}
+
 // export const sendMessage = async chatDTO => {
 //     try {
 //         const response = await call("/chat/send", "POST", chatDTO);

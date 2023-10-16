@@ -72,4 +72,9 @@ public class UserService {
             return null;
         }
     }
+    
+    public UserEntity getUserById(String id) {
+        return userRepository.findUserById(id).orElse(null);
+    }
+
 }

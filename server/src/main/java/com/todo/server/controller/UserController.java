@@ -143,4 +143,22 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+	
+	@PostMapping("/reset")
+    public ResponseEntity<?> resetPassword(@RequestParam String id, @RequestParam String newPassword) {
+        try {
+            UserEntity user = userService.getUserById(id);
+
+            if (user != null) {
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userService.updateUser(user);
+                return ResponseEntity.ok(ResponseDTO.builder().message("Password updated successfully").build());
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
 }
