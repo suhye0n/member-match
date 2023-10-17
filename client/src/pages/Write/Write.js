@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Autosuggest from 'react-autosuggest';
-import { Link, useNavigate } from 'react-router-dom';
-import { addProject } from "../../service/ApiService";
+import { useNavigate, useLocation } from 'react-router-dom';
+import { addProject, updateProject, getAllProjects } from '../../service/ApiService';
 
 const Container = styled.div`
   display: flex;
@@ -80,6 +80,10 @@ const Suggestion = styled.div`
 
 const Write = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const projectId = queryParams.get('id');
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('#');
@@ -159,12 +163,25 @@ const Write = () => {
   const handleCategorySuggestionClick = (suggestion) => {
     setCategory('#' + suggestion);
     setSelectedCategory(suggestion);
-  };  
-
+  };
+  
   const handleTechStackSuggestionClick = (suggestion) => {
-    setTechStack('#' + suggestion);
-    setTechStacks([...techStacks, suggestion]);
+    const techStackToAdd = `${suggestion}`;
+  
+    if (!techStacks.includes(techStackToAdd)) {
+      setTechStack(techStackToAdd);
+      setTechStacks([...techStacks, techStackToAdd]);
+    }
   };  
+  
+  const resetCategoryInput = () => {
+    setCategory('#');
+    setSelectedCategory('');
+  };
+  
+  const resetTechStackInput = () => {
+    setTechStack('#');
+  };
 
   const handleCategoryChange = (event, { newValue }) => {
     setCategory(newValue.startsWith('#') ? newValue : `#${newValue}`);
@@ -231,19 +248,50 @@ const Write = () => {
       ],
     };
   
-    addProject(projectData)
-      .then(response => {
-        console.log('프로젝트 추가 성공:', response);
-        navigate('/list/my');
-      })
-      .catch(error => {
-        console.error('프로젝트 추가 오류:', error);
-      });
-  };  
+    if (projectId) {
+      updateProject(projectId, projectData)
+        .then(response => {
+          console.log('프로젝트 수정 성공:', response);
+          navigate(`/project?id=${projectId}`);
+        })
+        .catch(error => {
+          console.error('프로젝트 수정 오류:', error);
+        });
+    } else {
+      addProject(projectData)
+        .then(response => {
+          console.log('프로젝트 추가 성공:', response);
+          navigate('/list/my');
+        })
+        .catch(error => {
+          console.error('프로젝트 추가 오류:', error);
+        });
+    }
+  };
+  
+  useEffect(() => {
+    if (projectId) {
+      getAllProjects()
+        .then((projects) => {
+          const project = projects.find((proj) => proj.key.toString() === projectId);
+  
+          if (project) {
+            setTitle(project.title);
+            setDescription(project.desc);
+            setCategory(`#${project.cate}`);
+            setTechStacks(project.stack.map((stack) => `${stack}`));
+            setSelectedCategory(project.cate);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [projectId]);   
 
   return (
     <Container>
-      <Title>프로젝트 등록</Title>
+      <Title>{projectId ? '프로젝트 수정' : '프로젝트 등록'}</Title>
       <Span>제목</Span>
       <Input
         type="text"
@@ -278,8 +326,9 @@ const Write = () => {
         renderSuggestion={renderTechSuggestion}
         inputProps={techStackInputProps}
         renderInputComponent={renderInputComponent}
+        onSuggestionSelected={resetTechStackInput}
       />
-      <Button onClick={handleSubmit}>작성 완료</Button>
+      <Button onClick={handleSubmit}>{projectId ? '수정 완료' : '작성 완료'}</Button>
     </Container>
   );
 };
