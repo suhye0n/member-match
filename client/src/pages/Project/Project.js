@@ -6,7 +6,7 @@ import { CgProfile } from 'react-icons/cg';
 import { MdOutlineReportGmailerrorred, MdStarBorder, MdChatBubbleOutline } from 'react-icons/md';
 import Chat from '../../layout/Chat';
 import CustomCalendar from './Calendar';
-import { deleteProject, updateProject, getAllProjects } from "../../service/ApiService";
+import { deleteProject, updateProject, recProject, getAllProjects } from "../../service/ApiService";
 
 const Heading = styled.div`
     padding: 150px 20% 50px 20%;
@@ -110,6 +110,23 @@ const BlackBtn = styled.button`
     border-radius: 10px;
     cursor: pointer;
     color: #fff;
+    transition: .4s;
+
+    &:hover {
+        opacity: 0.7;
+    }
+`;
+
+const AddBtn = styled.button`
+    display: block;
+    font-size: 12px;
+    width: 180px;
+    margin: 0 auto 25px auto;
+    text-align: center;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     transition: .4s;
 
     &:hover {
@@ -254,6 +271,29 @@ const MemberTitle = styled.h2`
   margin-bottom: 10px;
 `;
 
+const InputContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0;
+`;
+
+const PositionInput = styled.input`
+    flex: 1;
+    padding: 14px;
+    border: 1px solid #eee;
+    border-radius: 5px 0 0 5px;
+    box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
+`;
+
+const CountInput = styled.input`
+    flex: 0.2;
+    padding: 14px;
+    border: 1px solid #eee;
+    border-radius: 0 5px 5px 0;
+    box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
+`;
+
 const Project = () => {
     const [projects, setProjects] = useState([]);
     const [applicants, setApplicants] = useState([]);
@@ -271,6 +311,17 @@ const Project = () => {
     const [date, setDate] = useState(new Date());
     const [projectIdToDelete, setProjectIdToDelete] = useState(null);
     const [projectIdToUpdate, setProjectIdToUpdate] = useState(null);
+    const [positions, setPositions] = useState([{ position: "", count: "" }]);
+
+    const addPosition = () => {
+        setPositions([...positions, { position: "", count: "" }]);
+    };
+
+    const updatePosition = (index, field, value) => {
+        const updatedPositions = [...positions];
+        updatedPositions[index][field] = value;
+        setPositions(updatedPositions);
+    };
 
     const addQuestion = () => {
         setQuestions([...questions, ""]);
@@ -286,19 +337,21 @@ const Project = () => {
         const updatedProject = {
             reckey: projectId,
             question: questions,
-            recdate: new Date(),
+            recdate: "2023-12-31T00:00:00.000+00:00",
             status: true,
+            recruitment: {},
         };
-
-        updateProject(updatedProject)
-            .then((response) => {
-                console.log("프로젝트가 업데이트되었습니다.", response);
-            })
-            .catch((error) => {
-                console.error("프로젝트 업데이트 오류:", error);
+    
+        positions.forEach((positionData, index) => {
+            updatedProject.recruitment[positionData.position] = parseInt(positionData.count, 10);
+        });
+    
+        recProject(projectId, updatedProject)
+            .then(() => {
+                setRecruitOpen(false);
             });
-    };
-
+    };    
+    
     useEffect(() => {
         async function fetchProjects() {
             try {
@@ -337,10 +390,23 @@ const Project = () => {
                         <CloseBtn onClick={() => setRecruitOpen(false)}>X</CloseBtn>
                         <Title>멤버 모집</Title>
                         <div>필요한 포지션</div>
-                        <Input />
-                        <div>필요한 인원</div>
-                        <Input />
-
+                        {positions.map((position, index) => (
+                            <InputContainer key={index}>
+                                <PositionInput
+                                    placeholder={`포지션 ${index + 1}`}
+                                    value={position.position}
+                                    onChange={(e) => updatePosition(index, "position", e.target.value)}
+                                />
+                                <CountInput
+                                    placeholder="인원"
+                                    value={position.count}
+                                    onChange={(e) => updatePosition(index, "count", e.target.value)}
+                                    type="number"
+                                />
+                            </InputContainer>
+                        ))}
+                        <AddBtn onClick={addPosition}>+ 포지션 추가</AddBtn>
+                            
                         {questions.map((question, index) => (
                             <div key={index}>
                                 <div>질문 {index + 1}</div>
@@ -351,7 +417,7 @@ const Project = () => {
                             </div>
                         ))}
 
-                        <Button onClick={addQuestion}>+ 멤버 신청 질문 추가</Button>
+                        <AddBtn onClick={addQuestion}>+ 멤버 신청 질문 추가</AddBtn>
 
                         <Button onClick={submitQuestions}>작성 완료</Button>
                     </Modal>
@@ -434,6 +500,7 @@ const Project = () => {
 
 
             <Container>
+            {applicants.length > 0 && (
                 <ListItem>
                     <MemberTitle>멤버 지원자</MemberTitle>
                     {applicants.map((applicant, index) => (
@@ -448,31 +515,37 @@ const Project = () => {
                     </div>
                     ))}
                 </ListItem>
+                )}
 
                 <ListItem>
                     <MemberTitle>멤버</MemberTitle>
-                    {members.map((memberName, index) => (
-                    <div key={index}>
-                        <p>{memberName}</p>
-                        <div className="btns">
-                        <TransBtn onClick={() => setProfileOpen(true)}>
-                            <CgProfile /> 프로필 보기
-                        </TransBtn>
-                        <TransBtn onClick={() => setChatOpen(true)}>
-                            <MdChatBubbleOutline /> 1:1 채팅하기
-                        </TransBtn>
-                        <TransBtn onClick={() => setRateOpen(true)}>
-                            <MdStarBorder /> 평가하기
-                        </TransBtn>
-                        <TransBtn onClick={() => setReportOpen(true)}>
-                            <MdOutlineReportGmailerrorred /> 신고하기
-                        </TransBtn>
-                        </div>
-                    </div>
-                    ))}
+                    {members && members.length > 0 ? (
+                        members.map((member, index) => (
+                            <div key={index}>
+                                <p>{member.name}&nbsp;</p>
+                                <p>({member.position})</p>
+                                <div className="btns">
+                                    <TransBtn onClick={() => setProfileOpen(true)}>
+                                        <CgProfile /> 프로필 보기
+                                    </TransBtn>
+                                    <TransBtn onClick={() => setChatOpen(true)}>
+                                        <MdChatBubbleOutline /> 1:1 채팅하기
+                                    </TransBtn>
+                                    <TransBtn onClick={() => setRateOpen(true)}>
+                                        <MdStarBorder /> 평가하기
+                                    </TransBtn>
+                                    <TransBtn onClick={() => setReportOpen(true)}>
+                                        <MdOutlineReportGmailerrorred /> 신고하기
+                                    </TransBtn>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p>멤버가 없습니다.</p>
+                    )}
                 </ListItem>
 
-                <CustomCalendar />
+                <CustomCalendar projectId={projectId} />
             </Container >
         </>
     );
