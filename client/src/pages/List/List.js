@@ -191,10 +191,10 @@ const List = () => {
 
     const handleApplyClick = (projectId) => {
         const project = projects.find(item => item.key === projectId);
-    
+
         if (project) {
             const userHasApplied = project.applicants.some(applicant => applicant.name === username);
-    
+
             if (userHasApplied) {
                 alert("이미 이 프로젝트에 지원한 상태입니다.");
             } else {
@@ -207,23 +207,23 @@ const List = () => {
         } else {
             console.error(projectId);
         }
-    }    
+    }
 
     const handleApplySubmit = async () => {
         if (!selectedProject || selectedPosition === "" || questions.some(q => q === "") || answers.some(a => a === "")) {
             alert("포지션과 질문을 모두 입력해야 합니다.");
             return;
         }
-    
+
         const newApplicant = {
             "id": selectedProject.applicants.length + 1,
             "name": username,
             "position": selectedPosition,
             "answers": answers,
         };
-    
+
         selectedProject.applicants.push(newApplicant);
-    
+
         try {
             const updatedProject = await apply(selectedProject.key, selectedProject);
             if (updatedProject) {
@@ -236,7 +236,11 @@ const List = () => {
         } catch (error) {
             console.error("멤버 지원 오류:", error);
         }
-    }    
+    }
+
+    const userHasAppliedForProject = (project) => {
+        return project.applicants.some((applicant) => applicant.name === username);
+    };
 
     return (
         <>
@@ -274,7 +278,13 @@ const List = () => {
                                 </span>
                             </div>
                         </Link>
-                        <button onClick={() => handleApplyClick(item.key)}>지원하기</button>
+                        {userHasAppliedForProject(item) ? (
+                            <button disabled style={{ background: "#ccc", cursor: "not-allowed" }}>
+                                이미 지원함
+                            </button>
+                        ) : (
+                            <button onClick={() => handleApplyClick(item.key)}>지원하기</button>
+                        )}
                     </ListItem>
                 ))}
 
