@@ -184,7 +184,7 @@ const List = () => {
     const loadProjects = async () => {
         try {
             const response = await getAllProjects();
-            const filteredProjects = response.filter(project => project.recdate !== undefined && project.recdate !== null);
+            const filteredProjects = response.filter(project => project.recdate !== undefined && project.recdate !== null && project.recdate !== "1970-01-01T00:00:00.000+00:00");
             setProjects(filteredProjects);
         } catch (error) {
             console.error("프로젝트 불러오기 오류:", error);

@@ -58,7 +58,7 @@ public class ProjService {
             if (projEntity.getQuestion() != null) {
                 updatedEntity.setQuestion(projEntity.getQuestion());
             }
-            if (projEntity.getRecdate() != null || projEntity.getRecdate() == null) {
+            if (projEntity.getRecdate() != null) {
                 updatedEntity.setRecdate(projEntity.getRecdate());
             }
             if (projEntity.getCreatedate() != null) {

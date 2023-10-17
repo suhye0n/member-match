@@ -318,9 +318,8 @@ const Project = () => {
     const [selectedApplicant, setSelectedApplicant] = useState(null);
 
     const openAnswerModal = (applicant) => {
-    console.log(selectedApplicant);
-      setSelectedApplicant(applicant);
-      setAnswerOpen(true);
+        setSelectedApplicant(applicant);
+        setAnswerOpen(true);
     }
 
     const addPosition = () => {
@@ -345,14 +344,14 @@ const Project = () => {
 
     const submitQuestions = () => {
         const currentDate = new Date().toISOString();
-    
+
         const isPositionCountValid = positions.every(positionData => parseInt(positionData.count, 10) >= 1);
-    
+
         if (!isPositionCountValid) {
             alert("포지션당 최소 1명 이상의 인원이 필요합니다.");
             return;
         }
-    
+
         const updatedProject = {
             reckey: projectId,
             question: questions,
@@ -360,11 +359,11 @@ const Project = () => {
             status: true,
             recruitment: {},
         };
-    
+
         positions.forEach((positionData, index) => {
             updatedProject.recruitment[positionData.position] = parseInt(positionData.count, 10);
         });
-    
+
         recProject(projectId, updatedProject)
             .then(() => {
                 alert("모집 공고 작성이 완료되었습니다.");
@@ -372,13 +371,15 @@ const Project = () => {
                 window.location.reload();
             });
     };
-    
+
     const endRecruitment = () => {
         const userConfirmed = window.confirm('모집을 종료하시겠습니까?');
         if (userConfirmed) {
+            const recdateValue = "1970-01-01T00:00:00.000+00:00";
+
             const updatedProject = {
                 reckey: projectId,
-                recdate: null,
+                recdate: recdateValue,
             };
 
             recProject(projectId, updatedProject)
@@ -394,7 +395,7 @@ const Project = () => {
             try {
                 const response = await getAllProjects();
                 setProjects(response);
-    
+
                 const selectedProject = response.find(project => project.key == projectId);
                 if (selectedProject) {
                     setApplicants(selectedProject.applicants);
@@ -422,27 +423,62 @@ const Project = () => {
         const username = localStorage.getItem('username');
         return members.some((member) => member.name === username && member.position === '팀장');
     };
-    
+
     const isCurrentUser = (name) => {
         const username = localStorage.getItem('username');
         return name === username;
-    };  
-    
+    };
+
     const renderAnswers = (applicant) => {
         const answersToDisplay = [];
-        
-        for (let i = 0; i < applicant.answers.length; i++) {
-          answersToDisplay.push(
-            <div key={i}>
-              <p>질문 {i + 1}: {questions[i]}</p>
-              <p>{applicant.answers[i]}</p>
-            </div>
-          );
-        }
-      
-        return answersToDisplay;
-      }      
 
+        for (let i = 0; i < applicant.answers.length; i++) {
+            answersToDisplay.push(
+                <div key={i}>
+                    <p>질문 {i + 1}: {questions[i]}</p>
+                    <p>{applicant.answers[i]}</p>
+                </div>
+            );
+        }
+
+        return answersToDisplay;
+    }
+
+    const handleApproveApplicant = (applicant) => {
+        const updatedProjects = [...projects];
+    
+        updatedProjects.forEach((project) => {
+            const updatedApplicants = project.applicants.filter((a) => a.name !== applicant.name);
+    
+            if (updatedApplicants.length < project.applicants.length) {
+                project.member.push({
+                    name: applicant.name,
+                    position: applicant.position,
+                });
+    
+                project.applicants = updatedApplicants;
+    
+                const updatedProjectData = {
+                    reckey: project.key,
+                    applicants: updatedApplicants,
+                    member: project.member,
+                };
+    
+                updateProject(project.key, updatedProjectData)
+                    .then((response) => {
+                        console.log('프로젝트 수정 성공:', response);
+                        alert("지원자가 승인되었습니다.");
+                        window.location.reload();
+                    })
+                    .catch((error) => {
+                        console.error("프로젝트 업데이트 오류:", error);
+                    });
+            }
+        });
+    
+        setProjects(updatedProjects);
+    };
+    
     return (
         <>
             {isRecruitOpen && (
@@ -490,9 +526,9 @@ const Project = () => {
                 <>
                     <BlurBackground open={isAnswerOpen} onClick={() => setAnswerOpen(false)} />
                     <Modal open={isAnswerOpen}>
-                    <Title>{selectedApplicant.name}님의 답변</Title>
-                    <CloseBtn onClick={() => setAnswerOpen(false)}>X</CloseBtn>
-                    {renderAnswers(selectedApplicant)}
+                        <Title>{selectedApplicant.name}님의 답변</Title>
+                        <CloseBtn onClick={() => setAnswerOpen(false)}>X</CloseBtn>
+                        {renderAnswers(selectedApplicant)}
                     </Modal>
                 </>
             )}
@@ -560,7 +596,7 @@ const Project = () => {
                                         handleDeleteProject();
                                     }}>삭제</BlackBtn>
                                     <BlackBtn onClick={() => navigate(`/write?id=${projectId}`)}>수정</BlackBtn>
-                                    {recdate !== null ? (
+                                    {recdate !== null && recdate !== "1970-01-01T00:00:00.000+00:00" ? (
                                         <BlackBtn onClick={() => endRecruitment()}>모집 종료</BlackBtn>
                                     ) : (
                                         <BlackBtn onClick={() => setRecruitOpen(true)}>모집</BlackBtn>
@@ -582,7 +618,7 @@ const Project = () => {
                                 <Rate>★★★★☆</Rate>
                                 <div className="btns">
                                     <BlackBtn onClick={() => openAnswerModal(applicant)}>답변</BlackBtn>
-                                    <BlackBtn>승인</BlackBtn>
+                                    <BlackBtn onClick={() => handleApproveApplicant(applicant)}>승인</BlackBtn>
                                     <BlackBtn>거절</BlackBtn>
                                 </div>
                             </div>

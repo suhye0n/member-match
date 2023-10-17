@@ -252,6 +252,7 @@ const Write = () => {
       updateProject(projectId, projectData)
         .then(response => {
           console.log('프로젝트 수정 성공:', response);
+          alert("프로젝트가 수정되었습니다.");
           navigate(`/project?id=${projectId}`);
         })
         .catch(error => {
