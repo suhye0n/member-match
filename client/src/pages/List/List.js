@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
 import { CgProfile } from 'react-icons/cg';
+import { MdOutlineDescription } from 'react-icons/md';
 import { getAllProjects, apply } from "../../service/ApiService";
 
 const Heading = styled.div`
@@ -157,6 +158,11 @@ const Select = styled.select`
     box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
 `;
 
+const Desc = styled.p`
+    font-size: 14px;
+    color: #999;
+`;
+
 const List = () => {
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
@@ -251,33 +257,32 @@ const List = () => {
             <Container>
                 {projects.map((item, index) => (
                     <ListItem key={index}>
-                        <Link to={`/project?id=${item.key}`}>
-                            <h2>{item.title}</h2>
-                            <div>
-                                <span><BiCategory /></span>
-                                <span>#{item.cate}</span>
-                            </div>
-                            <div>
-                                <span><BiLogoReact /></span>
-                                <span>{item.stack.map((stack, index) => (
-                                    <span key={index}>#{stack}</span>
-                                ))}</span>
-                            </div>
-                            <div>
-                                <span><CgProfile /></span>
-                                <span>
-                                    {Object.keys(item.recruitment).map((position, index) => {
-                                        const recruitmentCount = item.recruitment[position];
-                                        const applicantsCount = item.applicants.filter(applicant => applicant.position === position).length;
-                                        return (
-                                            <span key={index}>
-                                                {`${position} ${applicantsCount}/${recruitmentCount}`}
-                                            </span>
-                                        );
-                                    })}
-                                </span>
-                            </div>
-                        </Link>
+                        <h2>{item.title}</h2>
+                        <Desc>{item.desc}</Desc>
+                        <div>
+                            <span><BiCategory /></span>
+                            <span>#{item.cate}</span>
+                        </div>
+                        <div>
+                            <span><BiLogoReact /></span>
+                            <span>{item.stack.map((stack, index) => (
+                                <span key={index}>#{stack}</span>
+                            ))}</span>
+                        </div>
+                        <div>
+                            <span><CgProfile /></span>
+                            <span>
+                                {Object.keys(item.recruitment).map((position, index) => {
+                                    const recruitmentCount = item.recruitment[position];
+                                    const applicantsCount = item.applicants.filter(applicant => applicant.position === position).length;
+                                    return (
+                                        <span key={index}>
+                                            {`${position} ${applicantsCount}/${recruitmentCount}`}
+                                        </span>
+                                    );
+                                })}
+                            </span>
+                        </div>
                         {userHasAppliedForProject(item) ? (
                             <button disabled style={{ background: "#ccc", cursor: "not-allowed" }}>
                                 이미 지원함
