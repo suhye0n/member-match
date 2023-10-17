@@ -20,7 +20,7 @@ public class ProjDTO {
     private String cate;
     private String[] stack;
     private int reckey;
-    private String[] member; // {이름: 포지션} 형식으로 변경
+    private List<Map<String, String>> member;
     private List<Map<String, Object>> applicants;
     private List<String> question;
     private Date recdate;

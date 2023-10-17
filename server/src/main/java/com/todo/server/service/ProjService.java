@@ -7,6 +7,7 @@ import com.todo.server.persistence.ProjRepository;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -63,10 +64,10 @@ public class ProjService {
             if (projEntity.getCreatedate() != null) {
                 updatedEntity.setCreatedate(projEntity.getCreatedate());
             }
-            if (projEntity.isStatus() == true) {
+            if (projEntity.isStatus()) {
                 updatedEntity.setStatus(projEntity.isStatus());
             }
-            if (projEntity.isStatus() == false) {
+            if (!projEntity.isStatus()) {
                 updatedEntity.setStatus(projEntity.isStatus());
             }
 
