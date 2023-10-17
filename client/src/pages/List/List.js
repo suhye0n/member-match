@@ -171,7 +171,9 @@ const List = () => {
     const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState([]);
     const [username, setUsername] = useState("");
-    const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [projectsPerPage] = useState(10);
+    const [search, setSearch] = useState("");
 
     useEffect(() => {
         loadProjects();
@@ -244,9 +246,23 @@ const List = () => {
         }
     }
 
+    const userMemberProject = (project) => {
+        return project.member.some((member) => member.name === username);
+    };
+
     const userHasAppliedForProject = (project) => {
         return project.applicants.some((applicant) => applicant.name === username);
     };
+
+    const filteredProjects = projects.filter((project) => {
+        return project.title.toLowerCase().includes(search.toLowerCase());
+    });
+
+    const indexOfLastProject = currentPage * projectsPerPage;
+    const indexOfFirstProject = indexOfLastProject - projectsPerPage;
+    const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
         <>
@@ -287,8 +303,14 @@ const List = () => {
                             <button disabled style={{ background: "#ccc", cursor: "not-allowed" }}>
                                 이미 지원함
                             </button>
-                        ) : (
-                            <button onClick={() => handleApplyClick(item.key)}>지원하기</button>
+                            ) : (
+                            userMemberProject(item) ? (
+                                <button disabled style={{ background: "#ccc", cursor: "not-allowed" }}>
+                                지원할 수 없음
+                                </button>
+                            ) : (
+                                <button onClick={() => handleApplyClick(item.key)}>지원하기</button>
+                            )
                         )}
                     </ListItem>
                 ))}
