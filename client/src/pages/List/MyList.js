@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
-import { CgProfile } from 'react-icons/cg';
+import { getAllProjects } from "../../service/ApiService";
 
 const Heading = styled.div`
     display: flex;
@@ -28,7 +28,7 @@ const ListItem = styled.div`
     background: rgba(196, 216, 243, .2);
     padding: 20px;
     margin-bottom: 30px;
-    
+
     h2 {
         font-size: 24px;
         margin-bottom: 10px;
@@ -42,7 +42,25 @@ const ListItem = styled.div`
         span {
             margin-right: 10px;
         }
-    }   
+    }
+
+    button {
+        margin-top: 14px;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        background: #A9EAFE;
+        border: none;
+        border-radius: 50px;
+        transition: 0.4s;
+        cursor: pointer;
+        white-space: normal;
+        overflow-wrap: break-word;
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+
+        &:hover {
+            opacity: 0.7;
+        }
+    }
 `;
 
 const WriteButton = styled.button`
@@ -62,50 +80,48 @@ const WriteButton = styled.button`
 `;
 
 const MyList = () => {
-    const data = [
-        {
-            projectName: "프로젝트 1",
-            category: "게임",
-            techStack: ["React", "Node.js", "MongoDB"],
-            positions: ["포지션1 0/3", "포지션2 1/1"],
-        },
-        {
-            projectName: "프로젝트 2",
-            category: "뉴스/정보",
-            techStack: ["React", "Redux", "Node.js"],
-            positions: ["포지션1 2/4", "포지션2 0/2"],
-        },
-        {
-            projectName: "프로젝트 3",
-            category: "유틸",
-            techStack: ["Vue.js", "Node.js", "MongoDB"],
-            positions: ["포지션1 1/2", "포지션2 1/1"],
-        },
-    ];
+    const [projects, setProjects] = useState([]);
+
+    useEffect(() => {
+        const storedUsername = localStorage.getItem('username');
+        if (storedUsername) {
+            loadProjects(storedUsername);
+        }
+    }, []);
+
+    const loadProjects = async (username) => {
+        try {
+            const response = await getAllProjects();
+            const filteredProjects = response.filter(project => project.member.some(member => member.name === username));
+            setProjects(filteredProjects);
+        } catch (error) {
+            console.error("프로젝트 불러오기 오류:", error);
+        }
+    };
 
     return (
         <>
             <Heading>
                 <h1>내 프로젝트</h1>
                 <Link to="/write">
-                    <WriteButton>글쓰기</WriteButton>
+                    <WriteButton>프로젝트 등록하기</WriteButton>
                 </Link>
             </Heading>
 
             <Container>
-                {data.map((item, index) => (
+                {projects.map((item, index) => (
                     <ListItem key={index}>
-                        <Link to='/project'>
-                            <h2>{item.projectName}</h2>
+                        <Link to={`/project?id=${item.key}`}>
+                            <h2>{item.title}</h2>
                             <div>
                                 <span><BiCategory /></span>
-                                <span>#{item.category}</span>
+                                <span>#{item.cate}</span>
                             </div>
                             <div>
                                 <span><BiLogoReact /></span>
-                                {item.techStack.map((tech, techIndex) => (
-                                    <span key={techIndex}>#{tech}</span>
-                                ))}
+                                <span>{item.stack.map((stack, index) => (
+                                    <span key={index}>#{stack}</span>
+                                ))}</span>
                             </div>
                         </Link>
                     </ListItem>
