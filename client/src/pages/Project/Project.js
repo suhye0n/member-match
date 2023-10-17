@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
 import { CgProfile } from 'react-icons/cg';
@@ -295,10 +295,12 @@ const CountInput = styled.input`
 `;
 
 const Project = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
     const [projects, setProjects] = useState([]);
     const [applicants, setApplicants] = useState([]);
     const [members, setMembers] = useState([]);
-    const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const projectId = queryParams.get('id');
     const [questions, setQuestions] = useState([]);
@@ -309,9 +311,9 @@ const Project = () => {
     const [isRateOpen, setRateOpen] = useState(false);
     const [isReportOpen, setReportOpen] = useState(false);
     const [date, setDate] = useState(new Date());
-    const [projectIdToDelete, setProjectIdToDelete] = useState(null);
     const [projectIdToUpdate, setProjectIdToUpdate] = useState(null);
     const [positions, setPositions] = useState([{ position: "", count: "" }]);
+    const projectIdToDelete = useRef(null);
 
     const addPosition = () => {
         setPositions([...positions, { position: "", count: "" }]);
@@ -370,14 +372,12 @@ const Project = () => {
         fetchProjects();
     }, [projectId]);
 
-    const deleteProject = async (projectId) => {
-        try {
-            const response = await deleteProject(projectId);
-            if (response) {
-                alert("프로젝트가 삭제되었습니다.");
-            }
-        } catch (error) {
-            console.error("프로젝트 삭제 오류:", error);
+    const handleDeleteProject = () => {
+        const userConfirmed = window.confirm('정말 삭제하시겠습니까?');
+        if (userConfirmed) {
+            deleteProject(projectIdToDelete.current).then(() => {
+                navigate('/list/my');
+            });
         }
     };
 
@@ -490,8 +490,11 @@ const Project = () => {
                                     <Tag key={index}>{stackItem}</Tag>
                                 ))}
                             </FlexContainer>
-                            <BlackBtn onClick={() => setProjectIdToDelete(project.key)}>삭제</BlackBtn>
-                            <BlackBtn onClick={() => setRecruitOpen(true)}>수정</BlackBtn>
+                            <BlackBtn onClick={() => {
+                                projectIdToDelete.current = projectId;
+                                handleDeleteProject();
+                            }}>삭제</BlackBtn>
+                            <BlackBtn onClick={() => navigate(`/write?id=${projectId}`)}>수정</BlackBtn>
                             <BlackBtn onClick={() => setRecruitOpen(true)}>모집</BlackBtn>
                         </Heading>
                     </div>
