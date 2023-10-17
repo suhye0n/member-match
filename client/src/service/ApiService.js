@@ -3,6 +3,8 @@ import { API_BASE_URL } from "../app-config";
 const ACCESS_TOKEN = "ACCESS_TOKEN";
 const username = "username";
 const email = "email";
+const location = "location";
+const userId = "userId";
 
 export const call = async (api, method, request) => {
     try {
@@ -33,6 +35,17 @@ export const call = async (api, method, request) => {
     }
 }
 
+export const checkUsernameAvailability = async username => {
+    const response = await call(`/auth/checkUsername/${username}`, "GET");
+    return response.exists;
+}
+
+export const checkEmailAvailability = async email => {
+    const response = await call(`/auth/checkEmail/${email}`, "GET");
+    console.log(response.exists);
+    return response.exists;
+}
+
 export const signin = async userDTO => {
     const response = await call("/auth/signin", "POST", userDTO);
 
@@ -41,6 +54,8 @@ export const signin = async userDTO => {
         localStorage.setItem(ACCESS_TOKEN, response.token);
         localStorage.setItem(username, response.username);
         localStorage.setItem(email, userDTO.email);
+        localStorage.setItem(location, response.location);
+        localStorage.setItem(userId, response.id);
         window.location.href = "/";
     }
 }
@@ -49,14 +64,15 @@ export const signup = async userDTO => {
     try {
         const response = await call("/auth/signup", "POST", userDTO);
 
-        if (response.id) {
+        if (response.error) {
+            alert('회원가입에 실패했습니다: ' + response.error);
+        } else {
             alert('회원가입을 성공하였습니다.');
             window.location.href = "/login";
         }
     } catch (error) {
         console.error("회원가입 오류:", error);
-
-        throw error;
+        alert("회원가입에 실패했습니다.");
     }
 }
 
@@ -64,6 +80,8 @@ export const signout = () => {
     localStorage.removeItem(ACCESS_TOKEN);
     localStorage.removeItem(username);
     localStorage.removeItem(email);
+    localStorage.removeItem(location);
+    localStorage.removeItem(userId);
     alert("로그아웃이 완료되었습니다.");
     window.location.href = "/";
 }
@@ -75,6 +93,8 @@ export const update = async userDTO => {
         if (response) {
             alert('회원 정보 수정이 완료되었습니다.')
             localStorage.setItem(username, response.username);
+            localStorage.setItem(email, response.email);
+            localStorage.setItem(location, response.location);
         }
     } catch (error) {
         console.error("회원 정보 수정 오류:", error);

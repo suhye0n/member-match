@@ -26,7 +26,7 @@ public class UserService {
             throw new RuntimeException("Username already exists");
         }
 
-        if (userRepository.existsByEmail(email)) {
+        if (existsByEmail(email)) {
             log.warn("Email already exists: {}", email);
             throw new RuntimeException("Email already exists");
         }
@@ -76,5 +76,12 @@ public class UserService {
     public UserEntity getUserById(String id) {
         return userRepository.findUserById(id).orElse(null);
     }
+    
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
 
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
 }

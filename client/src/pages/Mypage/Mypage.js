@@ -78,6 +78,16 @@ const Icon = styled.div`
   cursor: pointer;
 `;
 
+const Select = styled.select`
+  padding: 14px;
+  margin: 8px 0 20px 0;
+  width: 100%;
+  max-width: 358px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
+`;
+
 const Mypage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -92,19 +102,32 @@ const Mypage = () => {
 
   const handleUpdate = async (event) => {
     event.preventDefault();
-
+    
     const data = new FormData(event.target);
     const username = data.get("username");
     const email = data.get("email");
     const password = data.get("password");
-
+    const confirmPassword = data.get("confirmPassword");
+    const location = data.get("location");
+    
+    if (!username || !password || !confirmPassword) {
+      alert("모든 칸을 입력해주세요");
+      return;
+    }
+  
+    if (password !== confirmPassword) {
+      alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+      return;
+    }
+  
     try {
-      await update({ email, username, password })
+      await update({ email, username, password, location });
+      alert("회원 정보가 성공적으로 수정되었습니다.");
     } catch (error) {
       alert("회원 정보 수정을 실패했습니다.");
     }
   };
-
+  
   const handleWithdrawal = async () => {
     const emailInput = prompt('탈퇴하시려면 이메일을 입력해주세요.');
     const password = prompt('비밀번호를 입력해주세요.');
@@ -145,7 +168,7 @@ const Mypage = () => {
     <Container>
       <Title>회원정보 수정</Title>
       <form noValidate onSubmit={handleUpdate}>
-        <div>닉네임</div>
+        <div>닉네임 *</div>
         <Input
           autoComplete="username"
           name="username"
@@ -154,7 +177,7 @@ const Mypage = () => {
           placeholder="닉네임"
           defaultValue={localStorage.getItem("username")}
         />
-        <div>이메일 주소 (수정 불가)</div>
+        <div>이메일 주소</div>
         <Input
           autoComplete="email"
           name="email"
@@ -164,8 +187,33 @@ const Mypage = () => {
           InputProps={{
               readOnly: true,
           }}
+          disabled
         />
-        <div>비밀번호</div>
+        <div>활동지역</div>
+          <Select
+            name="location"
+            id="location"
+            defaultValue={localStorage.getItem("location")}
+          >
+            <option value="">-- 활동지역 선택 --</option>
+            <option value="경기도">경기도</option>
+            <option value="경상북도">경상북도</option>
+            <option value="경상남도">경상남도</option>
+            <option value="전라남도">전라남도</option>
+            <option value="전라북도">전라북도</option>
+            <option value="충청남도">충청남도</option>
+            <option value="충청북도">충청북도</option>
+            <option value="강원도">강원도</option>
+            <option value="서울특별시">서울특별시</option>
+            <option value="부산광역시">부산광역시</option>
+            <option value="대구광역시">대구광역시</option>
+            <option value="인천광역시">인천광역시</option>
+            <option value="대전광역시">대전광역시</option>
+            <option value="울산광역시">울산광역시</option>
+            <option value="제주특별자치도">제주특별자치도</option>
+            <option value="세종특별자치시">세종특별자치시</option>
+          </Select>
+        <div>비밀번호 *</div>
         <InputWithIcon>
           <Input
             type={showPassword ? "text" : "password"}
@@ -179,7 +227,7 @@ const Mypage = () => {
             {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
           </Icon>
         </InputWithIcon>
-        <div>비밀번호 확인</div>
+        <div>비밀번호 확인 *</div>
         <InputWithIcon>
           <Input
             type={showConfirmPassword ? "text" : "password"}

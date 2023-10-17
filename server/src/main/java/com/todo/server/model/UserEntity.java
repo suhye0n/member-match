@@ -30,9 +30,9 @@ public class UserEntity {
     @Column(nullable=false)
     private String email;
     
-    @Column(nullable=false)
-    private String password;
+    @Column
+    private String location;
     
     @Column(nullable=false)
-    private String location;
+    private String password;
 }

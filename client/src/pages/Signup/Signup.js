@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import emailjs from 'emailjs-com';
-import { signup } from "../../service/ApiService";
+import { signup, checkUsernameAvailability, checkEmailAvailability } from "../../service/ApiService";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 const Container = styled.div`
@@ -31,9 +31,19 @@ const Input = styled.input`
   box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
 `;
 
+const Select = styled.select`
+  padding: 14px;
+  margin: 8px 0 20px 0;
+  width: 100%;
+  max-width: 358px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
+`;
+
 const Button = styled.button`
   display: inline;
-  width: calc(100% - 28px);
+  width: 100%;
   max-width: 358px;
   margin-top: 14px;
   padding: 0.5rem 1rem;
@@ -72,6 +82,7 @@ function SignUp() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [inputVerificationCode, setInputVerificationCode] = useState('');
   const [showVerificationInput, setShowVerificationInput] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState("");
 
   const sendEmailVerificationCode = (email) => {
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -101,34 +112,50 @@ function SignUp() {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
+  const handleLocationChange = (event) => {
+    setSelectedLocation(event.target.value);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     const data = new FormData(event.target);
     const username = data.get("username");
     const email = data.get("email");
     const password = data.get("password");
+    const location = data.get("location");
     const confirmPassword = data.get("confirmPassword");
     const storedVerificationCode = localStorage.getItem('verificationCode');
-
+  
     if (inputVerificationCode !== storedVerificationCode) {
       alert("이메일 인증을 받아주세요.");
       return;
     }
-
+  
+    if (!username) {
+      alert("닉네임을 입력하세요.");
+      return;
+    }
+  
+    const isUsernameAvailable = await checkUsernameAvailability(username);
+    if (isUsernameAvailable) {
+      alert("중복된 닉네임입니다. 다른 닉네임을 입력해주세요.");
+      return;
+    }
+  
     if (password !== confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-
+  
     try {
-      await signup({ email, username, password })
+      await signup({ email, username, password, location });
       localStorage.removeItem('verificationCode');
     } catch (error) {
       alert("회원가입에 실패했습니다.");
     }
   };
-
+  
   useEffect(() => {
     const accessToken = localStorage.getItem('ACCESS_TOKEN');
 
@@ -143,15 +170,43 @@ function SignUp() {
       <Container>
         <Title>회원가입</Title>
         <form onSubmit={handleSubmit}>
-          <div>닉네임</div>
+          <div>닉네임 *</div>
           <Input
             autoComplete="username"
             name="username"
             required
             id="username"
             placeholder="닉네임"
+            style={{
+              maxWidth: 'calc(100% - 138px)',
+              width: '220px',
+              borderRadius: '5px 0 0 5px'
+            }}
           />
-          <div>이메일 주소</div>
+          <Button
+            style={{
+              width: '110px',
+              borderRadius: '0 5px 5px 0',
+              padding: '12.5px'
+            }}
+            onClick={async () => {
+              const usernameInput = document.getElementById("username").value;
+              if (!usernameInput) {
+                alert('닉네임을 입력하세요.');
+                return;
+              }
+              
+              const available = await checkUsernameAvailability(usernameInput);
+              if (!available) {
+                alert('사용 가능한 닉네임입니다.');
+              } else {
+                alert('중복된 닉네임입니다.');
+              }
+            }}
+          >
+            중복 확인
+          </Button>
+          <div>이메일 주소 *</div>
           <Input
             autoComplete="email"
             name="email"
@@ -168,16 +223,20 @@ function SignUp() {
           <Button
             style={{
               width: '90px',
-              borderRadius: 0,
               borderRadius: '0 5px 5px 0',
               padding: '12.5px'
             }}
-            onClick={() => {
+            onClick={async () => {
               const email = document.getElementById("email").value;
-              sendEmailVerificationCode(email);
+              const available = await checkEmailAvailability(email);
+              if (available) {
+                alert('이미 가입된 이메일입니다.');
+              } else {
+                sendEmailVerificationCode(email);
+              }
             }}
           >
-            인증
+            확인
           </Button>
           <br />
           {showVerificationInput && (
@@ -219,7 +278,32 @@ function SignUp() {
               </Button>
             </>
           )}
-          <div style={{marginTop: '20px'}}>비밀번호</div>
+          <div style={{marginTop: '20px'}}>활동지역</div>
+          <Select
+            name="location"
+            id="location"
+            value={selectedLocation}
+            onChange={handleLocationChange}
+          >
+            <option value="">-- 활동지역 선택 --</option>
+            <option value="경기도">경기도</option>
+            <option value="경상북도">경상북도</option>
+            <option value="경상남도">경상남도</option>
+            <option value="전라남도">전라남도</option>
+            <option value="전라북도">전라북도</option>
+            <option value="충청남도">충청남도</option>
+            <option value="충청북도">충청북도</option>
+            <option value="강원도">강원도</option>
+            <option value="서울특별시">서울특별시</option>
+            <option value="부산광역시">부산광역시</option>
+            <option value="대구광역시">대구광역시</option>
+            <option value="인천광역시">인천광역시</option>
+            <option value="대전광역시">대전광역시</option>
+            <option value="울산광역시">울산광역시</option>
+            <option value="제주특별자치도">제주특별자치도</option>
+            <option value="세종특별자치시">세종특별자치시</option>
+          </Select>
+          <div>비밀번호 *</div>
           <InputWithIcon>
             <Input
               type={showPassword ? "text" : "password"}
@@ -233,7 +317,7 @@ function SignUp() {
               {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
             </Icon>
           </InputWithIcon>
-          <div>비밀번호 확인</div>
+          <div>비밀번호 확인 *</div>
           <InputWithIcon>
             <Input
               type={showConfirmPassword ? "text" : "password"}

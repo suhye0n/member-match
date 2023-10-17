@@ -34,24 +34,30 @@ public class UserController {
 	
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
-		try {
-			UserEntity user = UserEntity.builder()
-					.email(userDTO.getEmail())
-					.username(userDTO.getUsername())
-					.password(passwordEncoder.encode(userDTO.getPassword()))
-					.build();
-			
-			UserEntity registeredUser = userService.create(user);
-			UserDTO responseUserDTO = userDTO.builder()
-					.email(registeredUser.getEmail())
-					.id(registeredUser.getId())
-					.username(registeredUser.getUsername())
-					.build();
-			return ResponseEntity.ok().body(responseUserDTO);
-		} catch(Exception e) {
-			ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
-			return ResponseEntity.badRequest().body(responseDTO);
-		}
+	    try {
+	        if (userService.existsByEmail(userDTO.getEmail())) {
+	            throw new Exception("이미 가입된 이메일 주소입니다.");
+	        }
+
+	        UserEntity user = UserEntity.builder()
+	                .email(userDTO.getEmail())
+	                .username(userDTO.getUsername())
+	                .password(passwordEncoder.encode(userDTO.getPassword()))
+	                .location(userDTO.getLocation())
+	                .build();
+
+	        UserEntity registeredUser = userService.create(user);
+	        UserDTO responseUserDTO = UserDTO.builder()
+	                .email(registeredUser.getEmail())
+	                .id(registeredUser.getId())
+	                .username(registeredUser.getUsername())
+	                .location(registeredUser.getLocation())
+	                .build();
+	        return ResponseEntity.ok().body(responseUserDTO);
+	    } catch (Exception e) {
+	        ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+	        return ResponseEntity.badRequest().body(responseDTO);
+	    }
 	}
 	
 	@PostMapping("/signin")
@@ -72,6 +78,7 @@ public class UserController {
 	                .id(user.getId())
 	                .username(user.getUsername())
 	                .token(token)
+	                .location(user.getLocation())
 	                .build();
 
 	        return ResponseEntity.ok().body(responseUserDTO);
@@ -92,6 +99,7 @@ public class UserController {
 	                .id(userId)
 	                .email(userDTO.getEmail())
 	                .username(userDTO.getUsername())
+	                .location(userDTO.getLocation())
 	                .password(passwordEncoder.encode(userDTO.getPassword()))
 	                .build();
 
@@ -101,6 +109,7 @@ public class UserController {
 	                .email(updatedUser.getEmail())
 	                .id(updatedUser.getId())
 	                .username(updatedUser.getUsername())
+	                .location(updatedUser.getLocation())
 	                .build();
 
 	        return ResponseEntity.ok().body(responseUserDTO);
@@ -161,4 +170,26 @@ public class UserController {
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
+	
+	@GetMapping("/checkUsername/{username}")
+	public ResponseEntity<?> checkUsername(@PathVariable String username) {
+	    boolean usernameExists = userService.existsByUsername(username);
+
+	    if (usernameExists) {
+	        return ResponseEntity.ok(Map.of("exists", true));
+	    } else {
+	        return ResponseEntity.ok(Map.of("exists", false));
+	    }
+	}
+	
+	@GetMapping("/checkEmail/{email}")
+	public ResponseEntity<?> checkEmail(@PathVariable String email) {
+	    boolean emailExists = userService.existsByEmail(email);
+
+	    if (emailExists) {
+	        return ResponseEntity.ok(Map.of("exists", true));
+	    } else {
+	        return ResponseEntity.ok(Map.of("exists", false));
+	    }
+	}
 }

@@ -410,6 +410,16 @@ const Project = () => {
         }
     };
 
+    const isTeamLeader = (members) => {
+        const username = localStorage.getItem('username');
+        return members.some((member) => member.name === username && member.position === '팀장');
+    };
+    
+    const isCurrentUser = (name) => {
+        const username = localStorage.getItem('username');
+        return name === username;
+    };    
+
     return (
         <>
             {isRecruitOpen && (
@@ -519,21 +529,24 @@ const Project = () => {
                                     <Tag key={index}>{stackItem}</Tag>
                                 ))}
                             </FlexContainer>
-                            <BlackBtn onClick={() => {
-                                projectIdToDelete.current = projectId;
-                                handleDeleteProject();
-                            }}>삭제</BlackBtn>
-                            <BlackBtn onClick={() => navigate(`/write?id=${projectId}`)}>수정</BlackBtn>
-                            {recdate !== null ? (
-                                <BlackBtn onClick={() => endRecruitment()}>모집 종료</BlackBtn>
-                            ) : (
-                                <BlackBtn onClick={() => setRecruitOpen(true)}>모집</BlackBtn>
-                            )}
+                            {isCurrentUser(project.member[0].name) ? (
+                                <>
+                                    <BlackBtn onClick={() => {
+                                        projectIdToDelete.current = projectId;
+                                        handleDeleteProject();
+                                    }}>삭제</BlackBtn>
+                                    <BlackBtn onClick={() => navigate(`/write?id=${projectId}`)}>수정</BlackBtn>
+                                    {recdate !== null ? (
+                                        <BlackBtn onClick={() => endRecruitment()}>모집 종료</BlackBtn>
+                                    ) : (
+                                        <BlackBtn onClick={() => setRecruitOpen(true)}>모집</BlackBtn>
+                                    )}
+                                </>
+                            ) : null}
                         </Heading>
                     </div>
                 ) : null
             ))}
-
 
             <Container>
                 {applicants.length > 0 && (
@@ -556,26 +569,33 @@ const Project = () => {
                 <ListItem>
                     <MemberTitle>멤버</MemberTitle>
                     {members && members.length > 0 ? (
-                        members.map((member, index) => (
-                            <div key={index}>
-                                <p>{member.name}&nbsp;</p>
-                                <p>({member.position})</p>
-                                <div className="btns">
-                                    <TransBtn onClick={() => setProfileOpen(true)}>
-                                        <CgProfile /> 프로필 보기
-                                    </TransBtn>
-                                    <TransBtn onClick={() => setChatOpen(true)}>
-                                        <MdChatBubbleOutline /> 1:1 채팅하기
-                                    </TransBtn>
-                                    <TransBtn onClick={() => setRateOpen(true)}>
-                                        <MdStarBorder /> 평가하기
-                                    </TransBtn>
-                                    <TransBtn onClick={() => setReportOpen(true)}>
-                                        <MdOutlineReportGmailerrorred /> 신고하기
-                                    </TransBtn>
+                        members.map((member, index) => {
+                            const isCurrentUserMember = isCurrentUser(member.name);
+                            return (
+                                <div key={index}>
+                                    <p style={{ fontWeight: isCurrentUserMember ? 'bold' : '', color: isCurrentUserMember ? 'blue' : 'black' }}>
+                                        {member.name}&nbsp;
+                                    </p>
+                                    <p>({member.position})</p>
+                                    {!isCurrentUserMember && (
+                                        <div className="btns">
+                                            <TransBtn onClick={() => setProfileOpen(true)}>
+                                                <CgProfile /> 프로필 보기
+                                            </TransBtn>
+                                            <TransBtn onClick={() => setChatOpen(true)}>
+                                                <MdChatBubbleOutline /> 1:1 채팅하기
+                                            </TransBtn>
+                                            <TransBtn onClick={() => setRateOpen(true)}>
+                                                <MdStarBorder /> 평가하기
+                                            </TransBtn>
+                                            <TransBtn onClick={() => setReportOpen(true)}>
+                                                <MdOutlineReportGmailerrorred /> 신고하기
+                                            </TransBtn>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     ) : (
                         <p>멤버가 없습니다.</p>
                     )}
