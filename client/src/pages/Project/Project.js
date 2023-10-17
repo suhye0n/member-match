@@ -315,6 +315,13 @@ const Project = () => {
     const [projectIdToUpdate, setProjectIdToUpdate] = useState(null);
     const [positions, setPositions] = useState([{ position: "", count: "" }]);
     const projectIdToDelete = useRef(null);
+    const [selectedApplicant, setSelectedApplicant] = useState(null);
+
+    const openAnswerModal = (applicant) => {
+    console.log(selectedApplicant);
+      setSelectedApplicant(applicant);
+      setAnswerOpen(true);
+    }
 
     const addPosition = () => {
         setPositions([...positions, { position: "", count: "" }]);
@@ -387,12 +394,13 @@ const Project = () => {
             try {
                 const response = await getAllProjects();
                 setProjects(response);
-
+    
                 const selectedProject = response.find(project => project.key == projectId);
                 if (selectedProject) {
                     setApplicants(selectedProject.applicants);
                     setMembers(selectedProject.member);
                     setRecdate(selectedProject.recdate);
+                    setQuestions(selectedProject.question);
                 }
             } catch (error) {
                 console.error("프로젝트 불러오기 오류:", error);
@@ -418,7 +426,22 @@ const Project = () => {
     const isCurrentUser = (name) => {
         const username = localStorage.getItem('username');
         return name === username;
-    };    
+    };  
+    
+    const renderAnswers = (applicant) => {
+        const answersToDisplay = [];
+        
+        for (let i = 0; i < applicant.answers.length; i++) {
+          answersToDisplay.push(
+            <div key={i}>
+              <p>질문 {i + 1}: {questions[i]}</p>
+              <p>{applicant.answers[i]}</p>
+            </div>
+          );
+        }
+      
+        return answersToDisplay;
+      }      
 
     return (
         <>
@@ -463,12 +486,13 @@ const Project = () => {
                 </>
             )}
 
-            {isAnswerOpen && (
+            {isAnswerOpen && selectedApplicant && (
                 <>
                     <BlurBackground open={isAnswerOpen} onClick={() => setAnswerOpen(false)} />
                     <Modal open={isAnswerOpen}>
-                        <CloseBtn onClick={() => setAnswerOpen(false)}>X</CloseBtn>
-                        <Chat />
+                    <Title>{selectedApplicant.name}님의 답변</Title>
+                    <CloseBtn onClick={() => setAnswerOpen(false)}>X</CloseBtn>
+                    {renderAnswers(selectedApplicant)}
                     </Modal>
                 </>
             )}
@@ -557,7 +581,7 @@ const Project = () => {
                                 <p>{applicant.name}</p>
                                 <Rate>★★★★☆</Rate>
                                 <div className="btns">
-                                    <BlackBtn onClick={() => setAnswerOpen(true)}>답변</BlackBtn>
+                                    <BlackBtn onClick={() => openAnswerModal(applicant)}>답변</BlackBtn>
                                     <BlackBtn>승인</BlackBtn>
                                     <BlackBtn>거절</BlackBtn>
                                 </div>
