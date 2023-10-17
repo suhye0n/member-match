@@ -298,6 +298,7 @@ const Project = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const [recdate, setRecdate] = useState(null);
     const [projects, setProjects] = useState([]);
     const [applicants, setApplicants] = useState([]);
     const [members, setMembers] = useState([]);
@@ -336,10 +337,19 @@ const Project = () => {
     };
 
     const submitQuestions = () => {
+        const currentDate = new Date().toISOString();
+    
+        const isPositionCountValid = positions.every(positionData => parseInt(positionData.count, 10) >= 1);
+    
+        if (!isPositionCountValid) {
+            alert("포지션당 최소 1명 이상의 인원이 필요합니다.");
+            return;
+        }
+    
         const updatedProject = {
             reckey: projectId,
             question: questions,
-            recdate: "2023-12-31T00:00:00.000+00:00",
+            recdate: currentDate,
             status: true,
             recruitment: {},
         };
@@ -350,10 +360,28 @@ const Project = () => {
     
         recProject(projectId, updatedProject)
             .then(() => {
+                alert("모집 공고 작성이 완료되었습니다.");
                 setRecruitOpen(false);
+                window.location.reload();
             });
-    };    
+    };
     
+    const endRecruitment = () => {
+        const userConfirmed = window.confirm('모집을 종료하시겠습니까?');
+        if (userConfirmed) {
+            const updatedProject = {
+                reckey: projectId,
+                recdate: null,
+            };
+
+            recProject(projectId, updatedProject)
+                .then(() => {
+                    setRecruitOpen(false);
+                    window.location.reload();
+                });
+        }
+    };
+
     useEffect(() => {
         async function fetchProjects() {
             try {
@@ -363,7 +391,8 @@ const Project = () => {
                 const selectedProject = response.find(project => project.key == projectId);
                 if (selectedProject) {
                     setApplicants(selectedProject.applicants);
-                    setMembers(selectedProject.member)
+                    setMembers(selectedProject.member);
+                    setRecdate(selectedProject.recdate);
                 }
             } catch (error) {
                 console.error("프로젝트 불러오기 오류:", error);
@@ -406,7 +435,7 @@ const Project = () => {
                             </InputContainer>
                         ))}
                         <AddBtn onClick={addPosition}>+ 포지션 추가</AddBtn>
-                            
+
                         {questions.map((question, index) => (
                             <div key={index}>
                                 <div>질문 {index + 1}</div>
@@ -495,7 +524,11 @@ const Project = () => {
                                 handleDeleteProject();
                             }}>삭제</BlackBtn>
                             <BlackBtn onClick={() => navigate(`/write?id=${projectId}`)}>수정</BlackBtn>
-                            <BlackBtn onClick={() => setRecruitOpen(true)}>모집</BlackBtn>
+                            {recdate !== null ? (
+                                <BlackBtn onClick={() => endRecruitment()}>모집 종료</BlackBtn>
+                            ) : (
+                                <BlackBtn onClick={() => setRecruitOpen(true)}>모집</BlackBtn>
+                            )}
                         </Heading>
                     </div>
                 ) : null
@@ -503,21 +536,21 @@ const Project = () => {
 
 
             <Container>
-            {applicants.length > 0 && (
-                <ListItem>
-                    <MemberTitle>멤버 지원자</MemberTitle>
-                    {applicants.map((applicant, index) => (
-                    <div key={index}>
-                        <p>{applicant.name}</p>
-                        <Rate>★★★★☆</Rate>
-                        <div className="btns">
-                        <BlackBtn onClick={() => setAnswerOpen(true)}>답변</BlackBtn>
-                        <BlackBtn>승인</BlackBtn>
-                        <BlackBtn>거절</BlackBtn>
-                        </div>
-                    </div>
-                    ))}
-                </ListItem>
+                {applicants.length > 0 && (
+                    <ListItem>
+                        <MemberTitle>멤버 지원자</MemberTitle>
+                        {applicants.map((applicant, index) => (
+                            <div key={index}>
+                                <p>{applicant.name}</p>
+                                <Rate>★★★★☆</Rate>
+                                <div className="btns">
+                                    <BlackBtn onClick={() => setAnswerOpen(true)}>답변</BlackBtn>
+                                    <BlackBtn>승인</BlackBtn>
+                                    <BlackBtn>거절</BlackBtn>
+                                </div>
+                            </div>
+                        ))}
+                    </ListItem>
                 )}
 
                 <ListItem>

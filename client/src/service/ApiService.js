@@ -157,7 +157,6 @@ export const recProject = async (projectId, projDTO) => {
         const response = await call(`/proj/update/${projectId}`, "PUT", projDTO);
 
         if (response) {
-            alert("모집 공고 작성이 완료되었습니다.");
         }
     } catch (error) {
         console.error("모집 공고 작성 오류:", error);

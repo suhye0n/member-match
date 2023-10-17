@@ -36,7 +36,7 @@ public class ProjEntity {
 
     private int reckey;
 
-    @Convert(converter = MemberConverter.class) // Define the custom converter here
+    @Convert(converter = MemberConverter.class)
     private List<Map<String, String>> member;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
