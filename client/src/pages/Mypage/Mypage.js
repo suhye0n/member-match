@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
-import { update, withdrawal, signout } from "../../service/ApiService";
+import { update, withdrawal, checkUsernameAvailability } from "../../service/ApiService";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 const Container = styled.div`
@@ -102,32 +102,32 @@ const Mypage = () => {
 
   const handleUpdate = async (event) => {
     event.preventDefault();
-    
+
     const data = new FormData(event.target);
     const username = data.get("username");
-    const email = data.get("email");
+    const email = localStorage.getItem("email");
     const password = data.get("password");
     const confirmPassword = data.get("confirmPassword");
     const location = data.get("location");
-    
+
     if (!username || !password || !confirmPassword) {
       alert("모든 칸을 입력해주세요");
       return;
     }
-  
+
     if (password !== confirmPassword) {
       alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
       return;
     }
-  
+
     try {
-      await update({ email, username, password, location });
-      alert("회원 정보가 성공적으로 수정되었습니다.");
+      const userId = localStorage.getItem("userId");
+      await update(userId, { email, username, password, location });
     } catch (error) {
       alert("회원 정보 수정을 실패했습니다.");
     }
   };
-  
+
   const handleWithdrawal = async () => {
     const emailInput = prompt('탈퇴하시려면 이메일을 입력해주세요.');
     const password = prompt('비밀번호를 입력해주세요.');
@@ -176,7 +176,35 @@ const Mypage = () => {
           id="username"
           placeholder="닉네임"
           defaultValue={localStorage.getItem("username")}
+          style={{
+            maxWidth: 'calc(100% - 138px)',
+            width: '220px',
+            borderRadius: '5px 0 0 5px'
+          }}
         />
+        <Button
+          style={{
+            width: '110px',
+            borderRadius: '0 5px 5px 0',
+            padding: '12.5px'
+          }}
+          onClick={async () => {
+            const usernameInput = document.getElementById("username").value;
+            if (!usernameInput) {
+              alert('닉네임을 입력하세요.');
+              return;
+            }
+
+            const available = await checkUsernameAvailability(usernameInput);
+            if (!available) {
+              alert('사용 가능한 닉네임입니다.');
+            } else {
+              alert('중복된 닉네임입니다.');
+            }
+          }}
+        >
+          중복 확인
+        </Button>
         <div>이메일 주소</div>
         <Input
           autoComplete="email"
@@ -185,34 +213,34 @@ const Mypage = () => {
           placeholder="이메일 주소"
           defaultValue={localStorage.getItem("email")}
           InputProps={{
-              readOnly: true,
+            readOnly: true,
           }}
           disabled
         />
         <div>활동지역</div>
-          <Select
-            name="location"
-            id="location"
-            defaultValue={localStorage.getItem("location")}
-          >
-            <option value="">-- 활동지역 선택 --</option>
-            <option value="경기도">경기도</option>
-            <option value="경상북도">경상북도</option>
-            <option value="경상남도">경상남도</option>
-            <option value="전라남도">전라남도</option>
-            <option value="전라북도">전라북도</option>
-            <option value="충청남도">충청남도</option>
-            <option value="충청북도">충청북도</option>
-            <option value="강원도">강원도</option>
-            <option value="서울특별시">서울특별시</option>
-            <option value="부산광역시">부산광역시</option>
-            <option value="대구광역시">대구광역시</option>
-            <option value="인천광역시">인천광역시</option>
-            <option value="대전광역시">대전광역시</option>
-            <option value="울산광역시">울산광역시</option>
-            <option value="제주특별자치도">제주특별자치도</option>
-            <option value="세종특별자치시">세종특별자치시</option>
-          </Select>
+        <Select
+          name="location"
+          id="location"
+          defaultValue={localStorage.getItem("location")}
+        >
+          <option value="">-- 활동지역 선택 --</option>
+          <option value="경기도">경기도</option>
+          <option value="경상북도">경상북도</option>
+          <option value="경상남도">경상남도</option>
+          <option value="전라남도">전라남도</option>
+          <option value="전라북도">전라북도</option>
+          <option value="충청남도">충청남도</option>
+          <option value="충청북도">충청북도</option>
+          <option value="강원도">강원도</option>
+          <option value="서울특별시">서울특별시</option>
+          <option value="부산광역시">부산광역시</option>
+          <option value="대구광역시">대구광역시</option>
+          <option value="인천광역시">인천광역시</option>
+          <option value="대전광역시">대전광역시</option>
+          <option value="울산광역시">울산광역시</option>
+          <option value="제주특별자치도">제주특별자치도</option>
+          <option value="세종특별자치시">세종특별자치시</option>
+        </Select>
         <div>비밀번호 *</div>
         <InputWithIcon>
           <Input
@@ -242,10 +270,10 @@ const Mypage = () => {
           </Icon>
         </InputWithIcon>
         <Button>회원정보 수정</Button>
-        </form>
+      </form>
 
-        <StyledLink onClick={handleWithdrawal}>회원 탈퇴하시려면 여기를 클릭해주세요.</StyledLink>
-      
+      <StyledLink onClick={handleWithdrawal}>회원 탈퇴하시려면 여기를 클릭해주세요.</StyledLink>
+
     </Container>
   );
 };

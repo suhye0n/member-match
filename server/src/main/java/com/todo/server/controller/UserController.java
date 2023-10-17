@@ -9,8 +9,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -90,27 +92,39 @@ public class UserController {
 	    }
 	}
 
-	@PostMapping("/update")
-	public ResponseEntity<?> updateUser(@RequestBody UserDTO userDTO) {
+	@PatchMapping("/update/{id}")
+	public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UserDTO userDTO) {
 	    try {
-	        String userId = userService.getUser(userDTO.getEmail().toString()).getId();
+	        UserEntity existingUser = userService.getUserById(id);
 
-	        UserEntity updatedUser = UserEntity.builder()
-	                .id(userId)
-	                .email(userDTO.getEmail())
-	                .username(userDTO.getUsername())
-	                .location(userDTO.getLocation())
-	                .password(passwordEncoder.encode(userDTO.getPassword()))
-	                .build();
+	        if (existingUser == null) {
+	            return ResponseEntity.notFound().build();
+	        }
 
-	        userService.updateUser(updatedUser);
+	        if (userDTO.getEmail() != null) {
+	            existingUser.setEmail(userDTO.getEmail());
+	        }
+
+	        if (userDTO.getUsername() != null) {
+	            existingUser.setUsername(userDTO.getUsername());
+	        }
+
+	        if (userDTO.getLocation() != null) {
+	            existingUser.setLocation(userDTO.getLocation());
+	        }
+
+	        if (userDTO.getPassword() != null) {
+	            existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+	        }
+
+	        userService.updateUser(existingUser);
 
 	        UserDTO responseUserDTO = UserDTO.builder()
-	                .email(updatedUser.getEmail())
-	                .id(updatedUser.getId())
-	                .username(updatedUser.getUsername())
-	                .location(updatedUser.getLocation())
-	                .build();
+	            .email(existingUser.getEmail())
+	            .id(existingUser.getId())
+	            .username(existingUser.getUsername())
+	            .location(existingUser.getLocation())
+	            .build();
 
 	        return ResponseEntity.ok().body(responseUserDTO);
 	    } catch (Exception e) {
@@ -118,7 +132,7 @@ public class UserController {
 	        return ResponseEntity.badRequest().body(responseDTO);
 	    }
 	}
-
+	
 	@DeleteMapping("/withdrawal")
 	public ResponseEntity<?> deleteUser(@RequestBody UserDTO userDTO) {
 	    try {

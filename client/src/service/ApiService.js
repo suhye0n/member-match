@@ -86,22 +86,19 @@ export const signout = () => {
     window.location.href = "/";
 }
 
-export const update = async userDTO => {
+export const update = async (userId, userDTO) => {
     try {
-        const response = await call("/auth/update", "POST", userDTO);
-    
-        if (response) {
-            alert('회원 정보 수정이 완료되었습니다.')
-            localStorage.setItem(username, response.username);
-            localStorage.setItem(email, response.email);
-            localStorage.setItem(location, response.location);
-        }
+      const response = await call(`/auth/update/${userId}`, "PATCH", userDTO);
+      if (response) {
+        alert('회원 정보 수정이 완료되었습니다.');
+        localStorage.setItem(username, response.username);
+        localStorage.setItem(location, response.location);
+      }
     } catch (error) {
-        console.error("회원 정보 수정 오류:", error);
-
-        throw error;
+      console.error('회원 정보 수정 오류:', error);
+      throw error;
     }
-}
+}  
 
 export const withdrawal = async userDTO => {
     try {
