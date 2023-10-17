@@ -423,7 +423,7 @@ const Project = () => {
         const username = localStorage.getItem('username');
         const teamLeader = members.find((member) => member.position === '팀장');
         return teamLeader && teamLeader.name === username;
-    };    
+    };
 
     const isCurrentUser = (name) => {
         const username = localStorage.getItem('username');
@@ -447,24 +447,24 @@ const Project = () => {
 
     const handleApproveApplicant = (applicant) => {
         const updatedProjects = [...projects];
-    
+
         updatedProjects.forEach((project) => {
             const updatedApplicants = project.applicants.filter((a) => a.name !== applicant.name);
-    
+
             if (updatedApplicants.length < project.applicants.length) {
                 project.member.push({
                     name: applicant.name,
                     position: applicant.position,
                 });
-    
+
                 project.applicants = updatedApplicants;
-    
+
                 const updatedProjectData = {
                     reckey: project.key,
                     applicants: updatedApplicants,
                     member: project.member,
                 };
-    
+
                 updateProject(project.key, updatedProjectData)
                     .then((response) => {
                         alert("지원자가 승인되었습니다.");
@@ -475,25 +475,25 @@ const Project = () => {
                     });
             }
         });
-    
+
         setProjects(updatedProjects);
     };
 
     const handleRejectApplicant = (applicant) => {
         const updatedProjects = [...projects];
-    
+
         updatedProjects.forEach((project) => {
             const updatedApplicants = project.applicants.filter((a) => a.name !== applicant.name);
-    
+
             if (updatedApplicants.length < project.applicants.length) {
                 project.applicants = updatedApplicants;
-    
+
                 const updatedProjectData = {
                     reckey: project.key,
                     applicants: updatedApplicants,
                     member: project.member,
                 };
-    
+
                 updateProject(project.key, updatedProjectData)
                     .then((response) => {
                         alert("지원자가 거절되었습니다.");
@@ -504,10 +504,10 @@ const Project = () => {
                     });
             }
         });
-    
+
         setProjects(updatedProjects);
     };
-    
+
     return (
         <>
             {isRecruitOpen && (
@@ -638,7 +638,7 @@ const Project = () => {
             ))}
 
             <Container>
-                {applicants.length > 0 && (
+                {applicants.length > 0 && isTeamLeader(members) && (
                     <ListItem>
                         <MemberTitle>멤버 지원자</MemberTitle>
                         {applicants.map((applicant, index) => (
