@@ -421,8 +421,9 @@ const Project = () => {
 
     const isTeamLeader = (members) => {
         const username = localStorage.getItem('username');
-        return members.some((member) => member.name === username && member.position === '팀장');
-    };
+        const teamLeader = members.find((member) => member.position === '팀장');
+        return teamLeader && teamLeader.name === username;
+    };    
 
     const isCurrentUser = (name) => {
         const username = localStorage.getItem('username');
@@ -466,12 +467,40 @@ const Project = () => {
     
                 updateProject(project.key, updatedProjectData)
                     .then((response) => {
-                        console.log('프로젝트 수정 성공:', response);
                         alert("지원자가 승인되었습니다.");
                         window.location.reload();
                     })
                     .catch((error) => {
-                        console.error("프로젝트 업데이트 오류:", error);
+                        console.error("승인 오류:", error);
+                    });
+            }
+        });
+    
+        setProjects(updatedProjects);
+    };
+
+    const handleRejectApplicant = (applicant) => {
+        const updatedProjects = [...projects];
+    
+        updatedProjects.forEach((project) => {
+            const updatedApplicants = project.applicants.filter((a) => a.name !== applicant.name);
+    
+            if (updatedApplicants.length < project.applicants.length) {
+                project.applicants = updatedApplicants;
+    
+                const updatedProjectData = {
+                    reckey: project.key,
+                    applicants: updatedApplicants,
+                    member: project.member,
+                };
+    
+                updateProject(project.key, updatedProjectData)
+                    .then((response) => {
+                        alert("지원자가 거절되었습니다.");
+                        window.location.reload();
+                    })
+                    .catch((error) => {
+                        console.error("거절 오류:", error);
                     });
             }
         });
@@ -619,7 +648,7 @@ const Project = () => {
                                 <div className="btns">
                                     <BlackBtn onClick={() => openAnswerModal(applicant)}>답변</BlackBtn>
                                     <BlackBtn onClick={() => handleApproveApplicant(applicant)}>승인</BlackBtn>
-                                    <BlackBtn>거절</BlackBtn>
+                                    <BlackBtn onClick={() => handleRejectApplicant(applicant)}>거절</BlackBtn>
                                 </div>
                             </div>
                         ))}
