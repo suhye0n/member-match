@@ -212,8 +212,10 @@ const Write = () => {
   
     const cleanCategory = category.replace(/^#/, '');
     const cleanTechStacks = techStacks.map(stack => stack.replace(/^#/, ''));
-
+  
     const currentDate = new Date().toISOString();
+  
+    const username = localStorage.getItem('username');
   
     const projectData = {
       title,
@@ -221,6 +223,12 @@ const Write = () => {
       createdate: currentDate,
       cate: cleanCategory,
       stack: cleanTechStacks,
+      member: [
+        {
+          name: username,
+          position: '팀장',
+        },
+      ],
     };
   
     addProject(projectData)
