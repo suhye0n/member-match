@@ -10,6 +10,7 @@ import com.todo.server.model.UserEntity;
 public interface UserRepository extends JpaRepository<UserEntity, String> {
     UserEntity findByEmail(String email);
     Optional<UserEntity> findUserById(String id);
+    Optional<UserEntity> findById(String id);
     Boolean existsByEmail(String email);
     Boolean existsByUsername(String username);
     UserEntity findByEmailAndPassword(String email, String password);

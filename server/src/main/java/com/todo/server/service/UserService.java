@@ -3,6 +3,7 @@ package com.todo.server.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import com.todo.server.model.UserEntity;
 import com.todo.server.persistence.UserRepository;
 import lombok.extern.slf4j.Slf4j;
