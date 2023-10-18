@@ -1,11 +1,16 @@
 package com.todo.server.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.todo.server.dto.ReportDTO;
 import com.todo.server.service.ReportService;
+
+import io.jsonwebtoken.lang.Collections;
 
 @RestController
 @RequestMapping("/reports")
@@ -34,6 +39,16 @@ public class ReportController {
             return new ResponseEntity<>("Report deleted successfully", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Report deletion failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<ReportDTO>> getAllReports() {
+        try {
+            List<ReportDTO> reports = reportService.getAllReports();
+            return new ResponseEntity<>(reports, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ArrayList<ReportDTO>(), HttpStatus.BAD_REQUEST);
         }
     }
 }

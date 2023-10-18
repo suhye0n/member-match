@@ -1,5 +1,8 @@
 package com.todo.server.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.todo.server.persistence.ReportRepository;
@@ -26,5 +29,18 @@ public class ReportService {
 
     public void deleteReport(String reportId) {
         reportRepository.deleteById(reportId);
+    }
+    
+    public List<ReportDTO> getAllReports() {
+        List<ReportEntity> reportEntities = reportRepository.findAll();
+        return reportEntities.stream()
+                .map(reportEntity -> {
+                    ReportDTO reportDTO = new ReportDTO();
+                    reportDTO.setReason(reportEntity.getReason());
+                    reportDTO.setReporter(reportEntity.getReporter());
+                    reportDTO.setTarget(reportEntity.getTarget());
+                    return reportDTO;
+                })
+                .collect(Collectors.toList());
     }
 }

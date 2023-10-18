@@ -324,3 +324,26 @@ export const reportResource = async (reportDTO) => {
         throw error;
     }
 }
+
+export const getAllReports = async () => {
+    try {
+        const response = await call("/reports/all", "GET");
+        return response;
+    } catch (error) {
+        console.error("신고 리스트 불러오기 오류:", error);
+        throw error;
+    }
+}
+
+export const deleteReport = async (reportId) => {
+    try {
+        const response = await call(`/reports/delete/${reportId}`, "DELETE");
+
+        if (response) {
+            alert("신고가 삭제되었습니다.");
+        }
+    } catch (error) {
+        console.error("신고 삭제 오류:", error);
+        throw error;
+    }
+}

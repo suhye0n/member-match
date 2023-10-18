@@ -1,5 +1,7 @@
 package com.todo.server.model;
 
+import java.sql.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -37,5 +39,5 @@ public class UserEntity {
     private String password;
 
     @Column
-    private boolean state;
+    private Date state;
 }

@@ -1,5 +1,7 @@
 package com.todo.server.dto;
 
+import java.sql.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +18,5 @@ public class UserDTO {
     private String password;
     private String id;
     private String location;
-    private boolean state;
+    private Date state;
 }

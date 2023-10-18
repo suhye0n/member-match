@@ -184,6 +184,8 @@ const ChatIconWithBadge = styled.div`
 const Header = () => {
     const navigate = useNavigate();
     const userExists = !!localStorage.getItem('username');
+    const username = localStorage.getItem('username');
+    const isAdmin = username === "admin";
     const [isChatOpen, setChatOpen] = useState(false);
     const [isNotiOpen, setNotiOpen] = useState(false);
 
@@ -274,6 +276,7 @@ const Header = () => {
                 </CateBtn>
 
                 <MenuBtn>
+                    {isAdmin && <TransBtn><Link to='/admin'>관리자</Link></TransBtn>}
                     {userExists && <TransBtn><a onClick={signout}>로그아웃</a></TransBtn>}
                     {userExists && <BlackBtn><Link to='/mypage'>마이페이지</Link></BlackBtn>}
                     {!userExists && <TransBtn><Link to='/login'>로그인</Link></TransBtn>}

@@ -11,6 +11,7 @@ import Project from './pages/Project/Project';
 import Reset from './pages/Reset/Reset';
 import Signup from './pages/Signup/Signup';
 import Write from './pages/Write/Write';
+import Admin from './pages/Admin/Admin';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/reset" element={<Reset />}></Route>
             <Route path="/project" element={<Project />}></Route>
             <Route path="/write" element={<Write />}></Route>
+            <Route path="/admin" element={<Admin />}></Route>
           </Routes>
       </BrowserRouter>
     </>
