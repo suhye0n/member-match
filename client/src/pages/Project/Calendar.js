@@ -4,6 +4,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
 import { addCalendarEvent, getCalendarEventsByProjectKey, getCalendarEventById, updateCalendarEvent, deleteCalendarEvent } from "../../service/ApiService";
+import { FaArrowLeft, FaArrowRight, FaRegCalendar, FaTrash } from 'react-icons/fa';
 
 const CalendarContainer = styled.div`
     * {
@@ -177,7 +178,7 @@ const CustomCalendar = ({ projectId }) => {
                     console.error('Error adding calendar event:', error);
                 });
         }
-    };    
+    };
 
     return (
         <CalendarContainer>

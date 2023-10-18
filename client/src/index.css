@@ -40,3 +40,12 @@ a {
   white-space: normal;
   overflow-wrap: break-word; */
 }
+
+.rbc-toolbar {
+  display: block;
+}
+
+.rbc-toolbar-label {
+  text-align: center !important;
+  margin-right: 200px !important;
+}
