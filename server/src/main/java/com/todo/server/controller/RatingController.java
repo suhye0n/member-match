@@ -4,7 +4,8 @@ import com.todo.server.dto.RatingDTO;
 import com.todo.server.model.UserEntity;
 import com.todo.server.persistence.UserRepository;
 import com.todo.server.service.RatingService;
-import com.todo.server.service.UserService;
+
+import java.util.Optional;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -27,36 +28,36 @@ public class RatingController {
     @PostMapping("/rate")
     public ResponseEntity<?> rateUser(@RequestBody RatingDTO ratingDTO) {
         try {
-            UserEntity raterUser = getUserEntityFromDTO(ratingDTO.getRaterUserId());
-            UserEntity ratedUser = getUserEntityFromDTO(ratingDTO.getRatedUserId());
+            UserEntity raterUser = getUserEntityFromDTO(ratingDTO.getRaterUsername());
+            UserEntity ratedUser = getUserEntityFromDTO(ratingDTO.getRatedUsername());
             int rating = ratingDTO.getRating();
 
             ratingService.rateUser(raterUser, ratedUser, rating);
 
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @GetMapping("/average/{userId}")
-    public ResponseEntity<?> getAverageRating(@PathVariable String userId) {
+    @GetMapping("/average/{username}")
+    public ResponseEntity<?> getAverageRating(@PathVariable String username) {
         try {
-            UserEntity user = getUserEntityFromDTO(userId);
+            UserEntity user = getUserEntityFromDTO(username);
             double averageRating = ratingService.getAverageRating(user);
 
             return ResponseEntity.ok(averageRating);
-        } catch (Exception e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.badRequest().build();
         }
     }
-
-    private UserEntity getUserEntityFromDTO(String userId) {
-        return getUserEntityById(userId);
+    
+    private UserEntity getUserEntityFromDTO(String username) {
+        Optional<UserEntity> userEntityOptional = getUserEntityByUsername(username);
+        return userEntityOptional.orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
     }
 
-    private UserEntity getUserEntityById(String userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+    private Optional<UserEntity> getUserEntityByUsername(String username) {
+        return Optional.ofNullable(userRepository.findByUsername(username));
     }
 }

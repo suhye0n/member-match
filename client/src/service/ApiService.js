@@ -278,28 +278,37 @@ export const resetPassword = async (id, newPassword) => {
     }
 }
 
-// export const sendMessage = async chatDTO => {
-//     try {
-//         const response = await call("/chat/send", "POST", chatDTO);
-    
-//         if (response) {
-//         }
-//     } catch (error) {
-//         console.error("채팅 전송 오류:", error);
+export const rateUser = async (raterUsername, ratedUsername, rating) => {
+    const ratingDTO = {
+        raterUsername: raterUsername,
+        ratedUsername: ratedUsername,
+        rating: rating
+    };
 
-//         throw error;
-//     }
-// }
+    try {
+        const response = await call('/ratings/rate', 'POST', ratingDTO);
 
-// export const getMessage = async chatDTO => {
-//     try {
-//         const response = await call("/chat/all", "GET", chatDTO);
-    
-//         if (response) {
-//         }
-//     } catch (error) {
-//         console.error("채팅 불러오기 오류:", error);
+        if (response) {
+            alert('별점이 등록되었습니다.');
+        }
+    } catch (error) {
+        console.error('별점 등록 오류:', error);
+        throw error;
+    }
+}
 
-//         throw error;
-//     }
-// }
+export const getAverageRating = async (userId) => {
+    try {
+        const response = await call(`/ratings/average/${userId}`, "GET");
+
+        if (response && response.averageRating) {
+            return response.averageRating;
+        } else {
+            console.error("평균 별점을 가져올 수 없음.");
+            return null;
+        }
+    } catch (error) {
+        console.error("평균 별점 가져오기 오류:", error);
+        throw error;
+    }
+}

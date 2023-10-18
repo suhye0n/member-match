@@ -3,10 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
 import { CgProfile } from 'react-icons/cg';
+import { BsStarFill, BsStarHalf, BsStar } from 'react-icons/bs';
 import { MdOutlineReportGmailerrorred, MdStarBorder, MdChatBubbleOutline } from 'react-icons/md';
 import Chat from '../../layout/Chat';
 import CustomCalendar from './Calendar';
-import { deleteProject, updateProject, recProject, getAllProjects } from "../../service/ApiService";
+import { deleteProject, updateProject, recProject, getAllProjects, rateUser } from "../../service/ApiService";
 
 const Heading = styled.div`
     padding: 150px 20% 50px 20%;
@@ -316,6 +317,8 @@ const Project = () => {
     const [positions, setPositions] = useState([{ position: "", count: "" }]);
     const projectIdToDelete = useRef(null);
     const [selectedApplicant, setSelectedApplicant] = useState(null);
+    const [rating, setRating] = useState(0);
+    const [starIcons, setStarIcons] = useState([BsStar, BsStar, BsStar, BsStar, BsStar]);
 
     const openAnswerModal = (applicant) => {
         setSelectedApplicant(applicant);
@@ -508,6 +511,36 @@ const Project = () => {
         setProjects(updatedProjects);
     };
 
+    const handleStarClick = (value) => {
+        const newStarIcons = starIcons.map((icon, index) => {
+          if (index + 1 <= value) {
+            return BsStarFill;
+          } else if (index < value) {
+            return BsStarHalf;
+          } else {
+            return BsStar;
+          }
+        });
+        setStarIcons(newStarIcons);
+        setRating(value);
+      };      
+
+      const submitRating = async () => {
+        const raterUsername = localStorage.getItem('username');
+        const ratedUsername = selectedApplicant;
+        console.log(raterUsername, ratedUsername, rating);
+        try {
+            const response = await rateUser(raterUsername, ratedUsername, rating);
+            if (response) {
+                alert('평가하기가 완료되었습니다');
+                setRating(0);
+                setRateOpen(false);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };  
+
     return (
         <>
             {isRecruitOpen && (
@@ -587,7 +620,19 @@ const Project = () => {
                     <BlurBackground open={isRateOpen} onClick={() => setRateOpen(false)} />
                     <Modal open={isRateOpen}>
                         <CloseBtn onClick={() => setRateOpen(false)}>X</CloseBtn>
-                        <Chat />
+                        <Title>{selectedApplicant ? `${selectedApplicant}님 평가하기` : '평가하기'}</Title>
+                        <div>
+                            <div>
+                                {starIcons.map((Icon, index) => (
+                                <Icon
+                                    key={index}
+                                    onClick={() => handleStarClick(index + 1)}
+                                    style={{ cursor: 'pointer' }}
+                                />
+                                ))}
+                            </div>
+                        </div>
+                        <button onClick={submitRating}>평가 완료</button>
                     </Modal>
                 </>
             )}
@@ -597,7 +642,10 @@ const Project = () => {
                     <BlurBackground open={isReportOpen} onClick={() => setReportOpen(false)} />
                     <Modal open={isReportOpen}>
                         <CloseBtn onClick={() => setReportOpen(false)}>X</CloseBtn>
-                        <Chat />
+                        <Title>{}님 신고하기</Title>
+                        <div>신고하기</div>
+                        <Input />
+                        <Button onClick={submitQuestions}>신고 완료</Button>
                     </Modal>
                 </>
             )}
@@ -675,9 +723,13 @@ const Project = () => {
                                                 <TransBtn onClick={() => setChatOpen(true)}>
                                                     <MdChatBubbleOutline /> 1:1 채팅하기
                                                 </TransBtn>
-                                                <TransBtn onClick={() => setRateOpen(true)}>
+                                                <TransBtn onClick={() => {
+                                                    setSelectedApplicant(member.name);
+                                                    setRateOpen(true);
+                                                }}>
                                                     <MdStarBorder /> 평가하기
                                                 </TransBtn>
+
                                                 <TransBtn onClick={() => setReportOpen(true)}>
                                                     <MdOutlineReportGmailerrorred /> 신고하기
                                                 </TransBtn>
