@@ -1,5 +1,6 @@
 package com.todo.server.controller;
 
+import java.sql.Date;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -239,6 +240,38 @@ public class UserController {
 	        return ResponseEntity.ok(Map.of("exists", true));
 	    } else {
 	        return ResponseEntity.ok(Map.of("exists", false));
+	    }
+	}
+	
+	@GetMapping("/user/{username}/location")
+	public ResponseEntity<?> getUserLocation(@PathVariable String username) {
+	    try {
+	        UserEntity user = userService.getUserByNickname(username);
+
+	        if (user != null) {
+	            String location = user.getLocation();
+	            return ResponseEntity.ok(Map.of("location", location));
+	        } else {
+	            return ResponseEntity.notFound().build();
+	        }
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+	    }
+	}
+
+	@GetMapping("/user/{username}/state")
+	public ResponseEntity<?> getUserState(@PathVariable String username) {
+	    try {
+	        UserEntity user = userService.getUserByNickname(username);
+
+	        if (user != null) {
+	            Date state = user.getState();
+	            return ResponseEntity.ok(Map.of("state", state));
+	        } else {
+	            return ResponseEntity.notFound().build();
+	        }
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 	    }
 	}
 }

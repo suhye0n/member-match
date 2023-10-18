@@ -7,7 +7,17 @@ import { BsStarFill, BsStarHalf, BsStar } from 'react-icons/bs';
 import { MdOutlineReportGmailerrorred, MdStarBorder, MdChatBubbleOutline, MdBlock } from 'react-icons/md';
 import Chat from '../../layout/Chat';
 import CustomCalendar from './Calendar';
-import { deleteProject, updateProject, recProject, getAllProjects, rateUser, reportResource, getAverageRating } from "../../service/ApiService";
+import {
+    getAllProjects,
+    deleteProject,
+    updateProject,
+    recProject,
+    rateUser,
+    reportResource,
+    getAverageRating,
+    getUserLocation,
+    getUserState,
+} from '../../service/ApiService';
 
 const Heading = styled.div`
     padding: 150px 20% 50px 20%;
@@ -322,6 +332,8 @@ const Project = () => {
     const [starIcons, setStarIcons] = useState([BsStar, BsStar, BsStar, BsStar, BsStar]);
     const [averageRating, setAverageRating] = useState(null);
     const [averageRatings, setAverageRatings] = useState({});
+    const [userLocation, setUserLocation] = useState(null);
+    const [userState, setUserState] = useState(null);
 
     const openAnswerModal = (applicant) => {
         setSelectedApplicant(applicant);
@@ -574,9 +586,24 @@ const Project = () => {
         console.log(applicantName);
         try {
             const rating = await getAverageRating(applicantName);
+            console.log('Rating:', rating);
             setAverageRating(rating);
         } catch (error) {
             console.error("별점 가져오기 오류:", error);
+        }
+        try {
+            const locationResponse = await getUserLocation(applicantName);
+            console.log('활동 지역:', locationResponse);
+            setUserLocation(locationResponse);
+        } catch (error) {
+            console.error(error);
+        }
+        try {
+            const stateResponse = await getUserState(applicantName);
+            console.log('정지 상태:', stateResponse);
+            setUserState(stateResponse);
+        } catch (error) {
+            console.error(error);
         }
         setProfileOpen(true);
     };
@@ -593,10 +620,24 @@ const Project = () => {
         }
         setAverageRatings(ratings);
     };
-    
+
     useEffect(() => {
         fetchAverageRatings();
     }, []);
+
+    const formatStateText = () => {
+        if (userState) {
+            const currentDate = new Date();
+            const stateDate = new Date(userState);
+
+            if (stateDate >= currentDate) {
+                const formattedDate = stateDate.toLocaleDateString();
+                return `활동 정지(${formattedDate}까지)`;
+            }
+        }
+
+        return null;
+    };
 
     return (
         <>
@@ -669,6 +710,17 @@ const Project = () => {
                                 {averageRating >= 5 ? <BsStarFill /> : averageRating >= 4.5 ? <BsStarHalf /> : <BsStar />}
                             </div>
                         ) : null}
+
+                        {userLocation && (
+                            <div>
+                                <p>지역: {userLocation}</p>
+                            </div>
+                        )}
+                        {userState && (
+                            <div>
+                                <p>{formatStateText()}</p>
+                            </div>
+                        )}
 
                     </Modal>
                 </>

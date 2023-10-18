@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import styled, { keyframes } from 'styled-components';
 import Chat from './Chat';
 import Notification from './Notification';
-import { signout } from "../service/ApiService";
+import { signout, getUserState } from "../service/ApiService";
 
 const StyledHeader = styled.div`
     width: calc(100% - 160px);
@@ -188,6 +188,7 @@ const Header = () => {
     const isAdmin = username === "admin";
     const [isChatOpen, setChatOpen] = useState(false);
     const [isNotiOpen, setNotiOpen] = useState(false);
+    const [userState, setUserState] = useState("");
 
     const chats = [
         {
@@ -243,6 +244,37 @@ const Header = () => {
     const unreadChatCount = chats.reduce((count, chat) => {
         return count + chat.messages.filter((message) => !message.read).length;
     }, 0);
+
+    useEffect(() => {
+        async function fetchUserState() {
+            try {
+                const response = await getUserState(username);
+                setUserState(response);
+                checkUserState(response);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        if (userExists) {
+            fetchUserState();
+        }
+    }, [userExists, username]);
+
+    const checkUserState = (state) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        console.log(state);
+        console.log(today);
+    
+        const stateDate = new Date(state);
+    
+        if (stateDate >= today) {
+            alert("이용 정지 상태입니다.");
+            signout();
+            navigate('/login');
+        }
+    };    
 
     return (
         <>

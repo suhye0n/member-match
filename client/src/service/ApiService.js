@@ -359,3 +359,23 @@ export const deleteReport = async (reportId) => {
         throw error;
     }
 }
+
+export const getUserLocation = async (userId) => {
+    try {
+        const response = await call(`/auth/user/${userId}/location`, "GET");
+        return response.location;
+    } catch (error) {
+        console.error("사용자 위치 가져오기 오류:", error);
+        throw error;
+    }
+}
+
+export const getUserState = async (userId) => {
+    try {
+        const response = await call(`/auth/user/${userId}/state`, "GET");
+        return response.state;
+    } catch (error) {
+        console.error("사용자 상태 가져오기 오류:", error);
+        throw error;
+    }
+}
