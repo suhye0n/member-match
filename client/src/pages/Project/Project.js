@@ -4,10 +4,10 @@ import styled, { keyframes } from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
 import { CgProfile } from 'react-icons/cg';
 import { BsStarFill, BsStarHalf, BsStar } from 'react-icons/bs';
-import { MdOutlineReportGmailerrorred, MdStarBorder, MdChatBubbleOutline } from 'react-icons/md';
+import { MdOutlineReportGmailerrorred, MdStarBorder, MdChatBubbleOutline, MdBlock } from 'react-icons/md';
 import Chat from '../../layout/Chat';
 import CustomCalendar from './Calendar';
-import { deleteProject, updateProject, recProject, getAllProjects, rateUser } from "../../service/ApiService";
+import { deleteProject, updateProject, recProject, getAllProjects, rateUser, reportResource } from "../../service/ApiService";
 
 const Heading = styled.div`
     padding: 150px 20% 50px 20%;
@@ -318,6 +318,7 @@ const Project = () => {
     const projectIdToDelete = useRef(null);
     const [selectedApplicant, setSelectedApplicant] = useState(null);
     const [rating, setRating] = useState(0);
+    const reportInputRef = useRef(null);
     const [starIcons, setStarIcons] = useState([BsStar, BsStar, BsStar, BsStar, BsStar]);
 
     const openAnswerModal = (applicant) => {
@@ -513,19 +514,19 @@ const Project = () => {
 
     const handleStarClick = (value) => {
         const newStarIcons = starIcons.map((icon, index) => {
-          if (index + 1 <= value) {
-            return BsStarFill;
-          } else if (index < value) {
-            return BsStarHalf;
-          } else {
-            return BsStar;
-          }
+            if (index + 1 <= value) {
+                return BsStarFill;
+            } else if (index < value) {
+                return BsStarHalf;
+            } else {
+                return BsStar;
+            }
         });
         setStarIcons(newStarIcons);
         setRating(value);
-      };      
+    };
 
-      const submitRating = async () => {
+    const submitRating = async () => {
         const raterUsername = localStorage.getItem('username');
         const ratedUsername = selectedApplicant;
         console.log(raterUsername, ratedUsername, rating);
@@ -539,7 +540,32 @@ const Project = () => {
         } catch (error) {
             console.error(error);
         }
-    };  
+    };
+
+    const submitReport = async () => {
+        const reporter = localStorage.getItem('username');
+        const target = selectedApplicant;
+        const reason = reportInputRef.current.value;
+
+        if (!reason) {
+            alert('신고 이유를 입력해주세요.');
+            return;
+        }
+
+        const reportDTO = {
+            reporter,
+            target,
+            reason,
+        };
+
+        try {
+            await reportResource(reportDTO);
+            alert('신고가 완료되었습니다.');
+            setReportOpen(false);
+        } catch (error) {
+            console.error('신고하기 오류:', error);
+        }
+    };
 
     return (
         <>
@@ -624,11 +650,11 @@ const Project = () => {
                         <div>
                             <div>
                                 {starIcons.map((Icon, index) => (
-                                <Icon
-                                    key={index}
-                                    onClick={() => handleStarClick(index + 1)}
-                                    style={{ cursor: 'pointer' }}
-                                />
+                                    <Icon
+                                        key={index}
+                                        onClick={() => handleStarClick(index + 1)}
+                                        style={{ cursor: 'pointer' }}
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -642,10 +668,10 @@ const Project = () => {
                     <BlurBackground open={isReportOpen} onClick={() => setReportOpen(false)} />
                     <Modal open={isReportOpen}>
                         <CloseBtn onClick={() => setReportOpen(false)}>X</CloseBtn>
-                        <Title>{}님 신고하기</Title>
-                        <div>신고하기</div>
-                        <Input />
-                        <Button onClick={submitQuestions}>신고 완료</Button>
+                        <Title>{selectedApplicant ? `${selectedApplicant}님 신고하기` : '신고하기'}</Title>
+                        <div>신고 사유</div>
+                        <Input ref={reportInputRef} />
+                        <Button onClick={submitReport}>신고 완료</Button>
                     </Modal>
                 </>
             )}
@@ -718,21 +744,47 @@ const Project = () => {
                                         {!isCurrentUserMember && (
                                             <div className="btns">
                                                 <TransBtn onClick={() => setProfileOpen(true)}>
-                                                    <CgProfile /> 프로필 보기
+                                                    <CgProfile /> 프로필
                                                 </TransBtn>
                                                 <TransBtn onClick={() => setChatOpen(true)}>
-                                                    <MdChatBubbleOutline /> 1:1 채팅하기
+                                                    <MdChatBubbleOutline /> 1:1 채팅
                                                 </TransBtn>
                                                 <TransBtn onClick={() => {
                                                     setSelectedApplicant(member.name);
                                                     setRateOpen(true);
                                                 }}>
-                                                    <MdStarBorder /> 평가하기
+                                                    <MdStarBorder /> 평가
+                                                </TransBtn>
+                                                <TransBtn onClick={() => {
+                                                    setSelectedApplicant(member.name);
+                                                    setReportOpen(true);
+                                                }}>
+                                                    <MdOutlineReportGmailerrorred /> 신고
                                                 </TransBtn>
 
-                                                <TransBtn onClick={() => setReportOpen(true)}>
-                                                    <MdOutlineReportGmailerrorred /> 신고하기
-                                                </TransBtn>
+                                                {isTeamLeader(members) && (
+                                                    <TransBtn onClick={() => {
+                                                        setSelectedApplicant(member.name);
+                                                        const shouldExclude = window.confirm(`${member.name}님을 팀에서 제외하시겠습니까?`);
+                                                        if (shouldExclude) {
+                                                            const updatedMembers = members.filter((m) => m.name !== member.name);
+                                                            const updatedProjectData = {
+                                                                reckey: projectId,
+                                                                member: updatedMembers,
+                                                            };
+                                                            updateProject(projectId, updatedProjectData)
+                                                                .then(() => {
+                                                                    alert(`${member.name}님을 팀에서 제외하였습니다.`);
+                                                                    window.location.reload();
+                                                                })
+                                                                .catch((error) => {
+                                                                    console.error("멤버 제외 오류:", error);
+                                                                });
+                                                        }
+                                                    }}>
+                                                        <MdBlock /> 제외
+                                                    </TransBtn>
+                                                )}
                                             </div>
                                         )}
                                     </div>

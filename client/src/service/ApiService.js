@@ -11,19 +11,19 @@ export const call = async (api, method, request) => {
         const headers = new Headers({
             "Content-Type": "application/json",
         });
-    
+
         const accessToken = localStorage.getItem(ACCESS_TOKEN);
         if (accessToken) {
             headers.append("Authorization", `Bearer ${accessToken}`);
         }
-    
+
         const options = {
             headers,
             url: `${API_BASE_URL}${api}`,
             method,
             ...(request && { body: JSON.stringify(request) })
         };
-    
+
         const response = await fetch(options.url, options);
         const json = await response.json();
 
@@ -88,17 +88,17 @@ export const signout = () => {
 
 export const update = async (userId, userDTO) => {
     try {
-      const response = await call(`/auth/update/${userId}`, "PATCH", userDTO);
-      if (response) {
-        alert('회원 정보 수정이 완료되었습니다.');
-        localStorage.setItem(username, response.username);
-        localStorage.setItem(location, response.location);
-      }
+        const response = await call(`/auth/update/${userId}`, "PATCH", userDTO);
+        if (response) {
+            alert('회원 정보 수정이 완료되었습니다.');
+            localStorage.setItem(username, response.username);
+            localStorage.setItem(location, response.location);
+        }
     } catch (error) {
-      console.error('회원 정보 수정 오류:', error);
-      throw error;
+        console.error('회원 정보 수정 오류:', error);
+        throw error;
     }
-}  
+}
 
 export const withdrawal = async userDTO => {
     try {
@@ -309,6 +309,18 @@ export const getAverageRating = async (userId) => {
         }
     } catch (error) {
         console.error("평균 별점 가져오기 오류:", error);
+        throw error;
+    }
+}
+
+export const reportResource = async (reportDTO) => {
+    try {
+        const response = await call('/reports/create', 'POST', reportDTO);
+        if (response) {
+            alert('신고가 정상적으로 처리되었습니다.');
+        }
+    } catch (error) {
+        console.error('신고하기 오류:', error);
         throw error;
     }
 }
