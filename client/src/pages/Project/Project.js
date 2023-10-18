@@ -321,7 +321,8 @@ const Project = () => {
     const reportInputRef = useRef(null);
     const [starIcons, setStarIcons] = useState([BsStar, BsStar, BsStar, BsStar, BsStar]);
     const [averageRating, setAverageRating] = useState(null);
-    
+    const [averageRatings, setAverageRatings] = useState({});
+
     const openAnswerModal = (applicant) => {
         setSelectedApplicant(applicant);
         setAnswerOpen(true);
@@ -580,6 +581,23 @@ const Project = () => {
         setProfileOpen(true);
     };
 
+    const fetchAverageRatings = async () => {
+        const ratings = {};
+        for (const applicant of applicants) {
+            try {
+                const rating = await getAverageRating(applicant.name);
+                ratings[applicant.name] = rating;
+            } catch (error) {
+                console.error(`평균 별점 가져오기 오류 (${applicant.name}):`, error);
+            }
+        }
+        setAverageRatings(ratings);
+    };
+    
+    useEffect(() => {
+        fetchAverageRatings();
+    }, []);
+
     return (
         <>
             {isRecruitOpen && (
@@ -642,15 +660,15 @@ const Project = () => {
                         <Title>{selectedApplicant ? `${selectedApplicant}님 프로필 정보` : '프로필 정보'}</Title>
 
                         {averageRating !== null ? (
-                        <div>
-                            <p>평균 별점: {averageRating}</p>
-                            {averageRating >= 1 ? <BsStarFill /> : <BsStar />}
-                            {averageRating >= 2 ? <BsStarFill /> : averageRating >= 1.5 ? <BsStarHalf /> : <BsStar />}
-                            {averageRating >= 3 ? <BsStarFill /> : averageRating >= 2.5 ? <BsStarHalf /> : <BsStar />}
-                            {averageRating >= 4 ? <BsStarFill /> : averageRating >= 3.5 ? <BsStarHalf /> : <BsStar />}
-                            {averageRating >= 5 ? <BsStarFill /> : averageRating >= 4.5 ? <BsStarHalf /> : <BsStar />}
-                        </div>
-                    ) : null}
+                            <div>
+                                <p>평균 별점: {averageRating}</p>
+                                {averageRating >= 1 ? <BsStarFill /> : <BsStar />}
+                                {averageRating >= 2 ? <BsStarFill /> : averageRating >= 1.5 ? <BsStarHalf /> : <BsStar />}
+                                {averageRating >= 3 ? <BsStarFill /> : averageRating >= 2.5 ? <BsStarHalf /> : <BsStar />}
+                                {averageRating >= 4 ? <BsStarFill /> : averageRating >= 3.5 ? <BsStarHalf /> : <BsStar />}
+                                {averageRating >= 5 ? <BsStarFill /> : averageRating >= 4.5 ? <BsStarHalf /> : <BsStar />}
+                            </div>
+                        ) : null}
 
                     </Modal>
                 </>
@@ -742,8 +760,21 @@ const Project = () => {
                         <MemberTitle>멤버 지원자</MemberTitle>
                         {applicants.map((applicant, index) => (
                             <div key={index}>
-                                <p>{applicant.name}</p>
-                                <Rate>★★★★☆</Rate>
+                                <p>{applicant.name} &nbsp;</p>
+                                {averageRatings[applicant.name] !== undefined && (
+                                    <>
+                                        {/* <p> {averageRatings[applicant.name]}</p> */}
+                                        {averageRatings[applicant.name] !== null && (
+                                            <>
+                                                {averageRatings[applicant.name] >= 1 ? <BsStarFill /> : <BsStar />}
+                                                {averageRatings[applicant.name] >= 2 ? <BsStarFill /> : averageRatings[applicant.name] >= 1.5 ? <BsStarHalf /> : <BsStar />}
+                                                {averageRatings[applicant.name] >= 3 ? <BsStarFill /> : averageRatings[applicant.name] >= 2.5 ? <BsStarHalf /> : <BsStar />}
+                                                {averageRatings[applicant.name] >= 4 ? <BsStarFill /> : averageRatings[applicant.name] >= 3.5 ? <BsStarHalf /> : <BsStar />}
+                                                {averageRatings[applicant.name] >= 5 ? <BsStarFill /> : averageRatings[applicant.name] >= 4.5 ? <BsStarHalf /> : <BsStar />}
+                                            </>
+                                        )}
+                                    </>
+                                )}
                                 <div className="btns">
                                     <BlackBtn onClick={() => openAnswerModal(applicant)}>답변</BlackBtn>
                                     <BlackBtn onClick={() => handleApproveApplicant(applicant)}>승인</BlackBtn>
