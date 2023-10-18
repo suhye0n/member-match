@@ -309,12 +309,12 @@ export const rateUser = async (raterUsername, ratedUsername, rating) => {
     }
 }
 
-export const getAverageRating = async (userId) => {
+export const getAverageRating = async (ratedUsername) => {
     try {
-        const response = await call(`/ratings/average/${userId}`, "GET");
+        const response = await call(`/ratings/average/${ratedUsername}`, "GET");
 
-        if (response && response.averageRating) {
-            return response.averageRating;
+        if (response) {
+            return response;
         } else {
             console.error("평균 별점을 가져올 수 없음.");
             return null;

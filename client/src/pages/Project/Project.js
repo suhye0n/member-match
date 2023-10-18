@@ -7,7 +7,7 @@ import { BsStarFill, BsStarHalf, BsStar } from 'react-icons/bs';
 import { MdOutlineReportGmailerrorred, MdStarBorder, MdChatBubbleOutline, MdBlock } from 'react-icons/md';
 import Chat from '../../layout/Chat';
 import CustomCalendar from './Calendar';
-import { deleteProject, updateProject, recProject, getAllProjects, rateUser, reportResource } from "../../service/ApiService";
+import { deleteProject, updateProject, recProject, getAllProjects, rateUser, reportResource, getAverageRating } from "../../service/ApiService";
 
 const Heading = styled.div`
     padding: 150px 20% 50px 20%;
@@ -320,7 +320,8 @@ const Project = () => {
     const [rating, setRating] = useState(0);
     const reportInputRef = useRef(null);
     const [starIcons, setStarIcons] = useState([BsStar, BsStar, BsStar, BsStar, BsStar]);
-
+    const [averageRating, setAverageRating] = useState(null);
+    
     const openAnswerModal = (applicant) => {
         setSelectedApplicant(applicant);
         setAnswerOpen(true);
@@ -567,6 +568,18 @@ const Project = () => {
         }
     };
 
+    const handleProfileClick = async (applicantName) => {
+        setSelectedApplicant(applicantName);
+        console.log(applicantName);
+        try {
+            const rating = await getAverageRating(applicantName);
+            setAverageRating(rating);
+        } catch (error) {
+            console.error("별점 가져오기 오류:", error);
+        }
+        setProfileOpen(true);
+    };
+
     return (
         <>
             {isRecruitOpen && (
@@ -626,7 +639,19 @@ const Project = () => {
                     <BlurBackground open={isProfileOpen} onClick={() => setProfileOpen(false)} />
                     <Modal open={isProfileOpen}>
                         <CloseBtn onClick={() => setProfileOpen(false)}>X</CloseBtn>
-                        <Chat />
+                        <Title>{selectedApplicant ? `${selectedApplicant}님 프로필 정보` : '프로필 정보'}</Title>
+
+                        {averageRating !== null ? (
+                        <div>
+                            <p>평균 별점: {averageRating}</p>
+                            {averageRating >= 1 ? <BsStarFill /> : <BsStar />}
+                            {averageRating >= 2 ? <BsStarFill /> : averageRating >= 1.5 ? <BsStarHalf /> : <BsStar />}
+                            {averageRating >= 3 ? <BsStarFill /> : averageRating >= 2.5 ? <BsStarHalf /> : <BsStar />}
+                            {averageRating >= 4 ? <BsStarFill /> : averageRating >= 3.5 ? <BsStarHalf /> : <BsStar />}
+                            {averageRating >= 5 ? <BsStarFill /> : averageRating >= 4.5 ? <BsStarHalf /> : <BsStar />}
+                        </div>
+                    ) : null}
+
                     </Modal>
                 </>
             )}
@@ -741,52 +766,56 @@ const Project = () => {
                                             {member.name}&nbsp;
                                         </p>
                                         <p>({member.position})</p>
-                                        {!isCurrentUserMember && (
-                                            <div className="btns">
-                                                <TransBtn onClick={() => setProfileOpen(true)}>
-                                                    <CgProfile /> 프로필
-                                                </TransBtn>
-                                                <TransBtn onClick={() => setChatOpen(true)}>
-                                                    <MdChatBubbleOutline /> 1:1 채팅
-                                                </TransBtn>
-                                                <TransBtn onClick={() => {
-                                                    setSelectedApplicant(member.name);
-                                                    setRateOpen(true);
-                                                }}>
-                                                    <MdStarBorder /> 평가
-                                                </TransBtn>
-                                                <TransBtn onClick={() => {
-                                                    setSelectedApplicant(member.name);
-                                                    setReportOpen(true);
-                                                }}>
-                                                    <MdOutlineReportGmailerrorred /> 신고
-                                                </TransBtn>
-
-                                                {isTeamLeader(members) && (
+                                        <div className="btns">
+                                            <TransBtn onClick={() => {
+                                                handleProfileClick(member.name);
+                                            }}>
+                                                <CgProfile /> 프로필
+                                            </TransBtn>
+                                            {!isCurrentUserMember && (
+                                                <>
+                                                    <TransBtn onClick={() => setChatOpen(true)}>
+                                                        <MdChatBubbleOutline /> 1:1 채팅
+                                                    </TransBtn>
                                                     <TransBtn onClick={() => {
                                                         setSelectedApplicant(member.name);
-                                                        const shouldExclude = window.confirm(`${member.name}님을 팀에서 제외하시겠습니까?`);
-                                                        if (shouldExclude) {
-                                                            const updatedMembers = members.filter((m) => m.name !== member.name);
-                                                            const updatedProjectData = {
-                                                                reckey: projectId,
-                                                                member: updatedMembers,
-                                                            };
-                                                            updateProject(projectId, updatedProjectData)
-                                                                .then(() => {
-                                                                    alert(`${member.name}님을 팀에서 제외하였습니다.`);
-                                                                    window.location.reload();
-                                                                })
-                                                                .catch((error) => {
-                                                                    console.error("멤버 제외 오류:", error);
-                                                                });
-                                                        }
+                                                        setRateOpen(true);
                                                     }}>
-                                                        <MdBlock /> 제외
+                                                        <MdStarBorder /> 평가
                                                     </TransBtn>
-                                                )}
-                                            </div>
-                                        )}
+                                                    <TransBtn onClick={() => {
+                                                        setSelectedApplicant(member.name);
+                                                        setReportOpen(true);
+                                                    }}>
+                                                        <MdOutlineReportGmailerrorred /> 신고
+                                                    </TransBtn>
+
+                                                    {isTeamLeader(members) && (
+                                                        <TransBtn onClick={() => {
+                                                            setSelectedApplicant(member.name);
+                                                            const shouldExclude = window.confirm(`${member.name}님을 팀에서 제외하시겠습니까?`);
+                                                            if (shouldExclude) {
+                                                                const updatedMembers = members.filter((m) => m.name !== member.name);
+                                                                const updatedProjectData = {
+                                                                    reckey: projectId,
+                                                                    member: updatedMembers,
+                                                                };
+                                                                updateProject(projectId, updatedProjectData)
+                                                                    .then(() => {
+                                                                        alert(`${member.name}님을 팀에서 제외하였습니다.`);
+                                                                        window.location.reload();
+                                                                    })
+                                                                    .catch((error) => {
+                                                                        console.error("멤버 제외 오류:", error);
+                                                                    });
+                                                            }
+                                                        }}>
+                                                            <MdBlock /> 제외
+                                                        </TransBtn>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 );
                             })}
