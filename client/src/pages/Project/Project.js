@@ -655,42 +655,41 @@ const Project = () => {
                     </ListItem>
                 )}
 
-                <ListItem>
-                    <MemberTitle>멤버</MemberTitle>
-                    {members && members.length > 0 ? (
-                        members.map((member, index) => {
-                            const isCurrentUserMember = isCurrentUser(member.name);
-                            return (
-                                <div key={index}>
-                                    <p style={{ fontWeight: isCurrentUserMember ? 'bold' : '', color: isCurrentUserMember ? 'blue' : 'black' }}>
-                                        {member.name}&nbsp;
-                                    </p>
-                                    <p>({member.position})</p>
-                                    {!isCurrentUserMember && (
-                                        <div className="btns">
-                                            <TransBtn onClick={() => setProfileOpen(true)}>
-                                                <CgProfile /> 프로필 보기
-                                            </TransBtn>
-                                            <TransBtn onClick={() => setChatOpen(true)}>
-                                                <MdChatBubbleOutline /> 1:1 채팅하기
-                                            </TransBtn>
-                                            <TransBtn onClick={() => setRateOpen(true)}>
-                                                <MdStarBorder /> 평가하기
-                                            </TransBtn>
-                                            <TransBtn onClick={() => setReportOpen(true)}>
-                                                <MdOutlineReportGmailerrorred /> 신고하기
-                                            </TransBtn>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <p>멤버가 없습니다.</p>
-                    )}
-                </ListItem>
-
-                <CustomCalendar projectId={projectId} />
+                {members && members.length > 0 && (
+                    <>
+                        <ListItem>
+                            <MemberTitle>멤버</MemberTitle>
+                            {members.map((member, index) => {
+                                const isCurrentUserMember = isCurrentUser(member.name);
+                                return (
+                                    <div key={index}>
+                                        <p style={{ fontWeight: isCurrentUserMember ? 'bold' : 'normal', color: isCurrentUserMember ? 'blue' : 'black' }}>
+                                            {member.name}&nbsp;
+                                        </p>
+                                        <p>({member.position})</p>
+                                        {!isCurrentUserMember && (
+                                            <div className="btns">
+                                                <TransBtn onClick={() => setProfileOpen(true)}>
+                                                    <CgProfile /> 프로필 보기
+                                                </TransBtn>
+                                                <TransBtn onClick={() => setChatOpen(true)}>
+                                                    <MdChatBubbleOutline /> 1:1 채팅하기
+                                                </TransBtn>
+                                                <TransBtn onClick={() => setRateOpen(true)}>
+                                                    <MdStarBorder /> 평가하기
+                                                </TransBtn>
+                                                <TransBtn onClick={() => setReportOpen(true)}>
+                                                    <MdOutlineReportGmailerrorred /> 신고하기
+                                                </TransBtn>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </ListItem>
+                        <CustomCalendar projectId={projectId} />
+                    </>
+                )}
             </Container >
         </>
     );

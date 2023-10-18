@@ -163,6 +163,43 @@ const Desc = styled.p`
     color: #999;
 `;
 
+const SearchBar = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 5px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+
+    input {
+        flex: 1;
+        border: none;
+        padding: 8px;
+        border-radius: 5px;
+        box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
+    }
+`;
+
+const SearchIcon = styled.div`
+    margin-right: 10px;
+    font-size: 24px;
+    color: #999;
+`;
+
+const Pagination = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const PageNumber = styled.div`
+    cursor: pointer;
+    margin: 0 10px;
+    color: ${(props) => (props.active ? "blue" : "black")};
+    font-weight: ${(props) => (props.active ? "bold" : "normal")};
+`;
+
 const List = () => {
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
@@ -172,8 +209,16 @@ const List = () => {
     const [answers, setAnswers] = useState([]);
     const [username, setUsername] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [projectsPerPage] = useState(10);
+    const [projectsPerPage] = useState(5);
     const [search, setSearch] = useState("");
+
+    useEffect(() => {
+        loadProjects();
+        const storedUsername = localStorage.getItem('username');
+        if (storedUsername) {
+            setUsername(storedUsername);
+        }
+    }, []);
 
     useEffect(() => {
         loadProjects();
@@ -264,14 +309,44 @@ const List = () => {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+    const prevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const nextPage = () => {
+        const totalPageCount = Math.ceil(filteredProjects.length / projectsPerPage);
+        if (currentPage < totalPageCount) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(filteredProjects.length / projectsPerPage); i++) {
+        pageNumbers.push(i);
+    }
+
     return (
         <>
             <Heading>
                 <h1>멤버 모집</h1>
+
+                <SearchBar>
+                    <SearchIcon>
+                        <BiCategory />
+                    </SearchIcon>
+                    <input
+                        type="text"
+                        placeholder="프로젝트 검색"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </SearchBar>
             </Heading>
 
             <Container>
-                {projects.map((item, index) => (
+                {currentProjects.map((item, index) => (
                     <ListItem key={index}>
                         <h2>{item.title}</h2>
                         <Desc>{item.desc}</Desc>
@@ -303,10 +378,10 @@ const List = () => {
                             <button disabled style={{ background: "#ccc", cursor: "not-allowed" }}>
                                 이미 지원함
                             </button>
-                            ) : (
+                        ) : (
                             userMemberProject(item) ? (
                                 <button disabled style={{ background: "#ccc", cursor: "not-allowed" }}>
-                                지원할 수 없음
+                                    지원할 수 없음
                                 </button>
                             ) : (
                                 <button onClick={() => handleApplyClick(item.key)}>지원하기</button>
@@ -354,6 +429,19 @@ const List = () => {
                         </Modal>
                     </>
                 )}
+                <Pagination>
+                    <PageNumber onClick={prevPage}>&#60;</PageNumber>
+                    {pageNumbers.map((number) => (
+                        <PageNumber
+                            key={number}
+                            onClick={() => paginate(number)}
+                            active={number === currentPage}
+                        >
+                            {number}
+                        </PageNumber>
+                    ))}
+                    <PageNumber onClick={nextPage}>&#62;</PageNumber>
+                </Pagination>
             </Container>
         </>
     );
