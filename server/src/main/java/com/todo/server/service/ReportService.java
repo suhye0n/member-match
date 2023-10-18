@@ -1,6 +1,7 @@
 package com.todo.server.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,13 @@ public class ReportService {
         reportRepository.save(reportEntity);
     }
 
-    public void deleteReport(String reportId) {
-        reportRepository.deleteById(reportId);
+    public void deleteReport(Long reportId) {
+        Optional<ReportEntity> optionalReportEntity = reportRepository.findById(reportId);
+        if (optionalReportEntity.isPresent()) {
+            reportRepository.delete(optionalReportEntity.get());
+        } else {
+            throw new RuntimeException("Report not found for id: " + reportId);
+        }
     }
     
     public List<ReportDTO> getAllReports() {
@@ -36,6 +42,7 @@ public class ReportService {
         return reportEntities.stream()
                 .map(reportEntity -> {
                     ReportDTO reportDTO = new ReportDTO();
+                    reportDTO.setId(reportEntity.getId());
                     reportDTO.setReason(reportEntity.getReason());
                     reportDTO.setReporter(reportEntity.getReporter());
                     reportDTO.setTarget(reportEntity.getTarget());

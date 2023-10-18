@@ -100,6 +100,18 @@ export const update = async (userId, userDTO) => {
     }
 }
 
+export const updateState = async (nickname, state) => {
+    try {
+        const response = await call(`/auth/updatestate/${nickname}`, "PATCH", { state: state.state });
+        if (response) {
+            alert('활동 정지 처리가 완료되었습니다.');
+        }
+    } catch (error) {
+        console.error('활동 정지 상태 업데이트 오류:', error);
+        throw error;
+    }
+}
+
 export const withdrawal = async userDTO => {
     try {
         await call("/auth/withdrawal", "DELETE", userDTO);

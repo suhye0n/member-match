@@ -33,7 +33,7 @@ public class ReportController {
     }
 
     @DeleteMapping("/delete/{reportId}")
-    public ResponseEntity<String> deleteReport(@PathVariable String reportId) {
+    public ResponseEntity<String> deleteReport(@PathVariable Long reportId) {
         try {
             reportService.deleteReport(reportId);
             return new ResponseEntity<>("Report deleted successfully", HttpStatus.OK);

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportDTO {
+	private Long id;
     private String reason;
     private String reporter;
     private String target;

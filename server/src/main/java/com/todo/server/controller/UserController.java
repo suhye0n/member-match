@@ -117,6 +117,10 @@ public class UserController {
 	            existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 	        }
 
+	        if (userDTO.getState() != null) {
+	            existingUser.setState(userDTO.getState());
+	        }
+
 	        userService.updateUser(existingUser);
 
 	        UserDTO responseUserDTO = UserDTO.builder()
@@ -124,6 +128,37 @@ public class UserController {
 	            .id(existingUser.getId())
 	            .username(existingUser.getUsername())
 	            .location(existingUser.getLocation())
+	            .state(existingUser.getState())
+	            .build();
+
+	        return ResponseEntity.ok().body(responseUserDTO);
+	    } catch (Exception e) {
+	        ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
+	        return ResponseEntity.badRequest().body(responseDTO);
+	    }
+	}
+	
+	@PatchMapping("/updatestate/{nickname}")
+	public ResponseEntity<?> updateUserState(@PathVariable String nickname, @RequestBody UserDTO userDTO) {
+	    try {
+	        UserEntity existingUser = userService.getUserByNickname(nickname);
+
+	        if (existingUser == null) {
+	            return ResponseEntity.notFound().build();
+	        }
+
+	        if (userDTO.getState() != null) {
+	            existingUser.setState(userDTO.getState());
+	        }
+
+	        userService.updateUser(existingUser);
+
+	        UserDTO responseUserDTO = UserDTO.builder()
+	            .email(existingUser.getEmail())
+	            .id(existingUser.getId())
+	            .username(existingUser.getUsername())
+	            .location(existingUser.getLocation())
+	            .state(existingUser.getState())
 	            .build();
 
 	        return ResponseEntity.ok().body(responseUserDTO);

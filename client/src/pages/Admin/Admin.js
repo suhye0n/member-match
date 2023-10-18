@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
-import { BiCategory, BiLogoReact } from 'react-icons/bi';
-import { CgProfile } from 'react-icons/cg';
-import { MdOutlineDescription } from 'react-icons/md';
-import { getAllReports, update } from "../../service/ApiService";
+import { BiTrash, BiMessageSquareDetail } from 'react-icons/bi';
+import { getAllReports, updateState, deleteReport } from "../../service/ApiService";
 
 const Heading = styled.div`
     display: flex;
@@ -24,7 +22,8 @@ const Container = styled.div`
 
 const ListItem = styled.div`
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
     border-radius: 10px;
     box-shadow: 0px 2px 4px 0px #eceae5;
     background: rgba(196, 216, 243, .2);
@@ -39,7 +38,6 @@ const ListItem = styled.div`
     div {
         display: flex;
         align-items: center;
-        margin: 5px 0;
 
         span {
             margin-right: 10px;
@@ -53,14 +51,20 @@ const ListItem = styled.div`
         background: #A9EAFE;
         border: none;
         border-radius: 50px;
-        transition: 0.4s;
         cursor: pointer;
         white-space: normal;
         overflow-wrap: break-word;
         box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    svg {
+        margin-left: auto;
+        margin-right: 20px;
+        cursor: pointer;
+        transition: .4s;
 
         &:hover {
-            opacity: 0.7;
+            opacity: 0.6;
         }
     }
 `;
@@ -163,6 +167,7 @@ const Admin = () => {
     const [reports, setReports] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedReport, setSelectedReport] = useState(null);
+    const [completionDate, setCompletionDate] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -182,12 +187,49 @@ const Admin = () => {
 
     const openReportModal = (report) => {
         setSelectedReport(report);
+        setCompletionDate('');
         setModalOpen(true);
     };
 
     const closeReportModal = () => {
         setSelectedReport(null);
         setModalOpen(false);
+        setCompletionDate('');
+    };
+
+    const handleCompletionDateChange = (event) => {
+        setCompletionDate(event.target.value);
+    };
+
+    const handleCompleteReport = async () => {
+        if (selectedReport && completionDate) {
+            try {
+                const updatedReport = {
+                    ...selectedReport,
+                    state: completionDate,
+                };
+
+                await updateState(selectedReport.target, updatedReport);
+
+                closeReportModal();
+                await loadReports();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    };
+
+    const handleDeleteReport = async (report) => {
+        const confirmDelete = window.confirm("해당 신고 항목을 삭제하시겠습니까?");
+        // console.log(report.id);
+        if (confirmDelete) {
+            try {
+                await deleteReport(report.id);
+                await loadReports();
+            } catch (error) {
+                console.error(error);
+            }
+        }
     };
 
     return (
@@ -199,12 +241,13 @@ const Admin = () => {
             <Container>
                 {reports.map((report) => (
                     <ListItem key={report.id}>
-                        <h2>{report.reason}</h2>
                         <div>
-                            <span>신고자: {report.reporter}</span>
-                            <span>대상: {report.target}</span>
+                            <span>{report.target} ({report.reason})</span>
                         </div>
-                        <button onClick={() => openReportModal(report)}>상세 정보</button>
+                        <div>
+                            <BiMessageSquareDetail onClick={() => openReportModal(report)} />
+                            <BiTrash onClick={() => handleDeleteReport(report)} />
+                        </div>
                     </ListItem>
                 ))}
 
@@ -222,6 +265,14 @@ const Admin = () => {
                             <div>
                                 <span>사유: {selectedReport.reason}</span>
                             </div>
+                            <div>
+                                <Input
+                                    type="date"
+                                    value={completionDate}
+                                    onChange={handleCompletionDateChange}
+                                />
+                            </div>
+                            <button onClick={handleCompleteReport}>완료</button>
                             <button className="cancel" onClick={closeReportModal}>닫기</button>
                         </Modal>
                     </>
