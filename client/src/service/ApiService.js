@@ -206,60 +206,6 @@ export const updateProject = async (projectId, projDTO) => {
     }
 }
 
-export const addCalendarEvent = async calendarDTO => {
-    try {
-        const response = await call("/calendar/create", "POST", calendarDTO);
-
-        if (response) {
-            alert("캘린더 이벤트가 추가되었습니다.");
-        }
-    } catch (error) {
-        console.error("캘린더 이벤트 추가 오류:", error);
-
-        throw error;
-    }
-}
-
-export const getAllCalendarEvents = async () => {
-    try {
-        const response = await call("/calendar/all", "GET");
-
-        return response;
-    } catch (error) {
-        console.error("캘린더 이벤트 불러오기 오류:", error);
-
-        throw error;
-    }
-}
-
-export const updateCalendarEvent = async (eventId, calendarDTO) => {
-    try {
-        const response = await call(`/calendar/update/${eventId}`, "PUT", calendarDTO);
-
-        if (response) {
-            alert("캘린더 이벤트가 업데이트되었습니다.");
-        }
-    } catch (error) {
-        console.error("캘린더 이벤트 업데이트 오류:", error);
-
-        throw error;
-    }
-}
-
-export const deleteCalendarEvent = async eventId => {
-    try {
-        const response = await call(`/calendar/delete/${eventId}`, "DELETE");
-
-        if (response) {
-            alert("캘린더 이벤트가 삭제되었습니다.");
-        }
-    } catch (error) {
-        console.error("캘린더 이벤트 삭제 오류:", error);
-
-        throw error;
-    }
-}
-
 export const findId = async (email) => {
     try {
         const response = await call(`/auth/find/${email}`, "GET");
@@ -376,6 +322,62 @@ export const getUserState = async (username) => {
         return response.state;
     } catch (error) {
         console.error("사용자 상태 가져오기 오류:", error);
+        throw error;
+    }
+}
+
+export const addCalendarEvent = async (calendarEvent) => {
+    try {
+        const response = await call("/calendar/create", "POST", calendarEvent);
+        if (response) {
+            alert('일정이 추가되었습니다.');
+        }
+    } catch (error) {
+        console.error('일정 추가 오류:', error);
+        throw error;
+    }
+}
+
+export const getCalendarEventsByProjectKey = async (projectKey) => {
+    try {
+        const response = await call(`/calendar/project/${projectKey}`, "GET");
+        return response;
+    } catch (error) {
+        console.error('프로젝트 키별 일정 불러오기 오류:', error);
+        throw error;
+    }
+}
+
+export const getCalendarEventById = async (id) => {
+    try {
+        const response = await call(`/calendar/${id}`, "GET");
+        return response;
+    } catch (error) {
+        console.error('일정 불러오기 오류:', error);
+        throw error;
+    }
+}
+
+export const updateCalendarEvent = async (id, updatedEvent) => {
+    try {
+        const response = await call(`/calendar/${id}`, "PUT", updatedEvent);
+        if (response) {
+            alert('일정이 업데이트되었습니다.');
+        }
+    } catch (error) {
+        console.error('일정 업데이트 오류:', error);
+        throw error;
+    }
+}
+
+export const deleteCalendarEvent = async (id) => {
+    try {
+        const response = await call(`/calendar/${id}`, "DELETE");
+        if (response) {
+            alert('일정이 삭제되었습니다.');
+        }
+    } catch (error) {
+        console.error('일정 삭제 오류:', error);
         throw error;
     }
 }

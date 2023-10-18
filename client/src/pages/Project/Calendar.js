@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
+import { addCalendarEvent, getCalendarEventsByProjectKey, getCalendarEventById, updateCalendarEvent, deleteCalendarEvent } from "../../service/ApiService";
 
 const CalendarContainer = styled.div`
     * {
@@ -75,24 +76,10 @@ const BlurBackground = styled.div`
     transition: opacity 0.9s ease;
 `;
 
-const CustomCalendar = () => {
+const CustomCalendar = ({ projectId }) => {
     const localizer = momentLocalizer(moment);
 
-    const [events, setEvents] = useState([
-        {
-            title: '로그인 기능 만들기',
-            description: '로그인 기능',
-            start: new Date(2023, 9, 15),
-            end: new Date(2023, 9, 15),
-        },
-        {
-            title: '회원가입 성공하기',
-            description: '성공',
-            start: new Date(2023, 9, 20),
-            end: new Date(2023, 9, 20),
-        },
-    ]);
-
+    const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [editedEvent, setEditedEvent] = useState(null);
     const [isModalOpen, setModalOpen] = useState(false);
@@ -100,7 +87,23 @@ const CustomCalendar = () => {
         title: '',
         description: '',
     });
-    const [selectedDate, setSelectedDate] = useState(null); // Add selectedDate state
+    const [selectedDate, setSelectedDate] = useState(null);
+
+    useEffect(() => {
+        fetchCalendarEvents();
+    }, []);
+
+    const fetchCalendarEvents = () => {
+        if (projectId) {
+            getCalendarEventsByProjectKey(projectId)
+                .then((response) => {
+                    setEvents(response);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
+    };
 
     const openModal = () => {
         setModalOpen(true);
@@ -109,11 +112,11 @@ const CustomCalendar = () => {
     const closeModal = () => {
         setModalOpen(false);
         setNewEvent({ title: '', description: '' });
-        setSelectedDate(null); // Reset selected date when closing the modal
+        setSelectedDate(null);
     };
 
     const handleSelectSlot = ({ start, end }) => {
-        setSelectedDate(start); // Store the selected date in state
+        setSelectedDate(start);
         openModal();
     };
 
@@ -128,20 +131,27 @@ const CustomCalendar = () => {
     };
 
     const handleEventChange = () => {
-        const index = events.findIndex((event) => event === selectedEvent);
-
-        if (index !== -1 && editedEvent) {
-            const updatedEvents = [...events];
-            updatedEvents[index] = editedEvent;
-            setEvents(updatedEvents);
-            handleCloseEditor();
+        if (editedEvent) {
+            updateCalendarEvent(selectedEvent.id, editedEvent)
+                .then(() => {
+                    fetchCalendarEvents();
+                    handleCloseEditor();
+                })
+                .catch((error) => {
+                    console.error('Error updating calendar event:', error);
+                });
         }
     };
 
     const handleEventDelete = () => {
-        const updatedEvents = events.filter((event) => event !== selectedEvent);
-        setEvents(updatedEvents);
-        handleCloseEditor();
+        deleteCalendarEvent(selectedEvent.id)
+            .then(() => {
+                fetchCalendarEvents();
+                handleCloseEditor();
+            })
+            .catch((error) => {
+                console.error('Error deleting calendar event:', error);
+            });
     };
 
     const handleInputChange = (e) => {
@@ -154,17 +164,20 @@ const CustomCalendar = () => {
 
     const handleAddEvent = () => {
         if (newEvent.title && selectedDate) {
-            setEvents([
-                ...events,
-                {
-                    ...newEvent,
-                    start: selectedDate,
-                    end: selectedDate,
-                },
-            ]);
-            closeModal();
+            const start = selectedDate;
+            const end = selectedDate;
+            const creator = 'YourCreatorValue';
+    
+            addCalendarEvent({ title: newEvent.title, description: newEvent.description, start, end, creator, projectKey: projectId })
+                .then(() => {
+                    fetchCalendarEvents();
+                    closeModal();
+                })
+                .catch((error) => {
+                    console.error('Error adding calendar event:', error);
+                });
         }
-    };
+    };    
 
     return (
         <CalendarContainer>
@@ -181,6 +194,7 @@ const CustomCalendar = () => {
                 selectable
                 onSelectSlot={handleSelectSlot}
                 onSelectEvent={handleSelectEvent}
+                views={['month']}
             />
 
             {selectedEvent && (
