@@ -89,20 +89,20 @@ const Reset = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (password === confirmPassword) {
-        try {
-            if (id) {
-                const response = await resetPassword(id, password);
-                setResetMessage(response.message);
-            } else {
-                setResetMessage("ID가 유효하지 않습니다.");
-            }
-        } catch (error) {
-            console.error("비밀번호 재설정 오류:", error);
+      try {
+        if (id) {
+          const response = await resetPassword(id, password);
+          setResetMessage(response.message);
+        } else {
+          setResetMessage("ID가 유효하지 않습니다.");
         }
+      } catch (error) {
+        console.error("비밀번호 재설정 오류:", error);
+      }
     } else {
-        setResetMessage("비밀번호가 일치하지 않습니다.");
+      setResetMessage("비밀번호가 일치하지 않습니다.");
     }
-};
+  };
 
   useEffect(() => {
     const accessToken = localStorage.getItem('ACCESS_TOKEN');

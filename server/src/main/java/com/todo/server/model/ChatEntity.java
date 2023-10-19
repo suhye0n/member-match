@@ -30,4 +30,7 @@ public class ChatEntity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id")
     private List<MessageEntity> messages;
+
+    @Column(name = "C_KEY", nullable = false, columnDefinition = "TEXT")
+    private String key;
 }

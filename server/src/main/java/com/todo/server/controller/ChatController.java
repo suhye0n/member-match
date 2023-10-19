@@ -58,9 +58,9 @@ public class ChatController {
         }
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<ChatEntity> updateChat(@PathVariable Long id, @RequestBody ChatEntity updatedChat) {
-        ChatEntity chat = chatService.updateChat(id, updatedChat);
+    @PatchMapping("/{key}")
+    public ResponseEntity<ChatEntity> updateChat(@PathVariable("key") String key, @RequestBody ChatEntity updatedChat) {
+        ChatEntity chat = chatService.patchChat(key, updatedChat);
 
         if (chat != null) {
             return ResponseEntity.ok(chat);

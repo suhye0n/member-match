@@ -17,6 +17,7 @@ import {
     getAverageRating,
     getUserLocation,
     getUserState,
+    patchChat
 } from '../../service/ApiService';
 
 const Heading = styled.div`
@@ -463,6 +464,34 @@ const Project = () => {
         return answersToDisplay;
     }
 
+    const handleExcludeMember = async (memberName) => {
+        if (!isTeamLeader(members)) {
+            return;
+        }
+
+        const shouldExclude = window.confirm(`${memberName}님을 팀에서 제외하시겠습니까?`);
+
+        if (shouldExclude) {
+            const updatedMembers = members.filter((m) => m.name !== memberName);
+            const updatedProjectData = {
+                reckey: projectId,
+                member: updatedMembers,
+            };
+
+            try {
+                await updateProject(projectId, updatedProjectData);
+                alert(`${memberName}님을 팀에서 제외하였습니다.`);
+                const chatRoomData = {
+                    members: updatedMembers.map((member) => member.name),
+                };
+                await patchChat(projectId, chatRoomData);
+                window.location.reload();
+            } catch (error) {
+                console.error("멤버 제외 오류:", error);
+            }
+        }
+    };
+
     const handleApproveApplicant = (applicant) => {
         const updatedProjects = [...projects];
 
@@ -484,8 +513,18 @@ const Project = () => {
                 };
 
                 updateProject(project.key, updatedProjectData)
-                    .then((response) => {
+                    .then(async (response) => {
                         alert("지원자가 승인되었습니다.");
+
+                        const chatRoomData = {
+                            name: project.title,
+                            members: project.member.map((member) => member.name),
+                        };
+
+                        const chatResponse = await patchChat(project.key, chatRoomData);
+
+                        console.log("Chat room created/updated:", chatResponse);
+
                         window.location.reload();
                     })
                     .catch((error) => {
@@ -857,9 +896,9 @@ const Project = () => {
                                             </TransBtn>
                                             {!isCurrentUserMember && (
                                                 <>
-                                                    <TransBtn onClick={() => setChatOpen(true)}>
+                                                    {/* <TransBtn onClick={() => setChatOpen(true)}>
                                                         <MdChatBubbleOutline /> 1:1 채팅
-                                                    </TransBtn>
+                                                    </TransBtn> */}
                                                     <TransBtn onClick={() => {
                                                         setSelectedApplicant(member.name);
                                                         setRateOpen(true);
@@ -874,25 +913,7 @@ const Project = () => {
                                                     </TransBtn>
 
                                                     {isTeamLeader(members) && (
-                                                        <TransBtn onClick={() => {
-                                                            setSelectedApplicant(member.name);
-                                                            const shouldExclude = window.confirm(`${member.name}님을 팀에서 제외하시겠습니까?`);
-                                                            if (shouldExclude) {
-                                                                const updatedMembers = members.filter((m) => m.name !== member.name);
-                                                                const updatedProjectData = {
-                                                                    reckey: projectId,
-                                                                    member: updatedMembers,
-                                                                };
-                                                                updateProject(projectId, updatedProjectData)
-                                                                    .then(() => {
-                                                                        alert(`${member.name}님을 팀에서 제외하였습니다.`);
-                                                                        window.location.reload();
-                                                                    })
-                                                                    .catch((error) => {
-                                                                        console.error("멤버 제외 오류:", error);
-                                                                    });
-                                                            }
-                                                        }}>
+                                                        <TransBtn onClick={() => handleExcludeMember(member.name)}>
                                                             <MdBlock /> 제외
                                                         </TransBtn>
                                                     )}

@@ -17,19 +17,19 @@ function App() {
   return (
     <>
       <BrowserRouter>
-          <Header />
-          <Routes>
-            <Route path="/" element={<Main />}></Route>
-            <Route path="/signup" element={<Signup />}></Route>
-            <Route path="/login" element={<Login />}></Route>
-            <Route path="/list" element={<List />}></Route>
-            <Route path="/list/my" element={<MyList />}></Route>
-            <Route path="/mypage" element={<Mypage />}></Route>
-            <Route path="/reset" element={<Reset />}></Route>
-            <Route path="/project" element={<Project />}></Route>
-            <Route path="/write" element={<Write />}></Route>
-            <Route path="/admin" element={<Admin />}></Route>
-          </Routes>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Main />}></Route>
+          <Route path="/signup" element={<Signup />}></Route>
+          <Route path="/login" element={<Login />}></Route>
+          <Route path="/list" element={<List />}></Route>
+          <Route path="/list/my" element={<MyList />}></Route>
+          <Route path="/mypage" element={<Mypage />}></Route>
+          <Route path="/reset" element={<Reset />}></Route>
+          <Route path="/project" element={<Project />}></Route>
+          <Route path="/write" element={<Write />}></Route>
+          <Route path="/admin" element={<Admin />}></Route>
+        </Routes>
       </BrowserRouter>
     </>
   );

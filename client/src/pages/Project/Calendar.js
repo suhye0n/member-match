@@ -168,7 +168,7 @@ const CustomCalendar = ({ projectId }) => {
             const start = selectedDate;
             const end = selectedDate;
             const creator = 'YourCreatorValue';
-    
+
             addCalendarEvent({ title: newEvent.title, description: newEvent.description, start, end, creator, projectKey: projectId })
                 .then(() => {
                     fetchCalendarEvents();

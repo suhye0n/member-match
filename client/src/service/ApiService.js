@@ -134,6 +134,8 @@ export const addProject = async projDTO => {
         if (response) {
             alert("프로젝트가 추가되었습니다.");
         }
+
+        return response;
     } catch (error) {
         console.error("프로젝트 추가 오류:", error);
 
@@ -382,6 +384,15 @@ export const deleteCalendarEvent = async (id) => {
     }
 }
 
+export const createChatRoom = async (chatData) => {
+    try {
+        const response = await call('/chats', 'POST', chatData);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const addMessageToChat = async (chatId, message) => {
     try {
         const response = await call(`/chats/${chatId}/messages`, "POST", message);
@@ -394,6 +405,15 @@ export const addMessageToChat = async (chatId, message) => {
 export const updateChat = async (chatId, updatedChat) => {
     try {
         const response = await call(`/chats/${chatId}`, "PATCH", updatedChat);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const patchChat = async (chatKey, updatedChat) => {
+    try {
+        const response = await call(`/chats/${chatKey}`, "PATCH", updatedChat);
         return response;
     } catch (error) {
         throw error;

@@ -68,7 +68,7 @@ const ChatView = styled.div`
 
 const Scroll = styled.div`
     max-height: 60vh;
-    overflow-y: scroll; /* Enable vertical scrolling */
+    overflow-y: scroll;
 `;
 
 const InputContainer = styled.div`

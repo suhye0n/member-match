@@ -263,15 +263,15 @@ const Header = () => {
         today.setHours(0, 0, 0, 0);
         console.log(state);
         console.log(today);
-    
+
         const stateDate = new Date(state);
-    
+
         if (stateDate >= today) {
             alert("이용 정지 상태입니다.");
             signout();
             navigate('/login');
         }
-    };    
+    };
 
     return (
         <>

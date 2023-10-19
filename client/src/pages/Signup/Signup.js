@@ -118,7 +118,7 @@ function SignUp() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     const data = new FormData(event.target);
     const username = data.get("username");
     const email = data.get("email");
@@ -126,28 +126,28 @@ function SignUp() {
     const location = data.get("location");
     const confirmPassword = data.get("confirmPassword");
     const storedVerificationCode = localStorage.getItem('verificationCode');
-  
+
     if (inputVerificationCode !== storedVerificationCode) {
       alert("이메일 인증을 받아주세요.");
       return;
     }
-  
+
     if (!username) {
       alert("닉네임을 입력하세요.");
       return;
     }
-  
+
     const isUsernameAvailable = await checkUsernameAvailability(username);
     if (isUsernameAvailable) {
       alert("중복된 닉네임입니다. 다른 닉네임을 입력해주세요.");
       return;
     }
-  
+
     if (password !== confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-  
+
     try {
       await signup({ email, username, password, location });
       localStorage.removeItem('verificationCode');
@@ -155,7 +155,7 @@ function SignUp() {
       alert("회원가입에 실패했습니다.");
     }
   };
-  
+
   useEffect(() => {
     const accessToken = localStorage.getItem('ACCESS_TOKEN');
 
@@ -195,7 +195,7 @@ function SignUp() {
                 alert('닉네임을 입력하세요.');
                 return;
               }
-              
+
               const available = await checkUsernameAvailability(usernameInput);
               if (!available) {
                 alert('사용 가능한 닉네임입니다.');
@@ -278,7 +278,7 @@ function SignUp() {
               </Button>
             </>
           )}
-          <div style={{marginTop: '20px'}}>활동지역</div>
+          <div style={{ marginTop: '20px' }}>활동지역</div>
           <Select
             name="location"
             id="location"

@@ -55,6 +55,28 @@ public class ChatService {
 
         return null;
     }
+    
+    public ChatEntity patchChat(String key, ChatEntity updatedChat) {
+        ChatEntity existingChat = chatRepository.findByKey(key);
+
+        if (existingChat != null) {
+            if (updatedChat.getName() != null) {
+                existingChat.setName(updatedChat.getName());
+            }
+
+            if (updatedChat.getMembers() != null) {
+                existingChat.setMembers(updatedChat.getMembers());
+            }
+
+            if (updatedChat.getMessages() != null) {
+                existingChat.setMessages(updatedChat.getMessages());
+            }
+
+            return chatRepository.save(existingChat);
+        }
+
+        return null;
+    }
 
     public void deleteChat(Long id) {
         chatRepository.deleteById(id);

@@ -204,18 +204,18 @@ const Login = () => {
   const handleResetPassword = async () => {
     try {
       const email = resetEmail;
-  
+
       const id = await findId(email);
-  
+
       if (id) {
         const resetLink = `http://localhost:3000/reset?id=${id}`;
-  
+
         const templateParams = {
           to_email: email,
           to_name: email.split('@')[0],
           reset_link: resetLink,
         };
-  
+
         await emailjs.send('service_6ivehyn', 'template_fwqamhr', templateParams, '3YYSEIx_1W94_6PHN');
         alert('비밀번호 재설정 링크를 전송했습니다. 메일함을 확인해주세요.');
       } else {
@@ -225,7 +225,7 @@ const Login = () => {
       console.log(error);
       alert('이메일 전송 중 오류가 발생했습니다.');
     }
-  };  
+  };
 
   useEffect(() => {
     const accessToken = localStorage.getItem('ACCESS_TOKEN');

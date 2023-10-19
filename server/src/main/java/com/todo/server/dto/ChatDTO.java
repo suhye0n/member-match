@@ -17,4 +17,5 @@ public class ChatDTO {
     private String name;
     private List<String> members;
     private List<MessageDTO> messages;
+    private String key;
 }

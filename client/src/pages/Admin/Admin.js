@@ -221,7 +221,6 @@ const Admin = () => {
 
     const handleDeleteReport = async (report) => {
         const confirmDelete = window.confirm("해당 신고 항목을 삭제하시겠습니까?");
-        // console.log(report.id);
         if (confirmDelete) {
             try {
                 await deleteReport(report.id);
