@@ -234,12 +234,12 @@ const Header = () => {
         }
     }, [userExists]);
 
-    const unreadChatCounts = chats.map(chat => {
-        const unreadMessages = chat.messages.filter(message => !message.read);
-        return unreadMessages.length;
+    const unreadChatCounts = chats.map((chat) => {
+        return chat.messages.filter((message) => message.unreadMembers.includes(username)).length;
     });
 
     const unreadChatCount = unreadChatCounts.reduce((acc, count) => acc + count, 0);
+
     const unreadNotificationCount = notifications.filter((notification) => !notification.read).length;
 
     useEffect(() => {
@@ -270,6 +270,23 @@ const Header = () => {
             alert("이용 정지 상태입니다.");
             signout();
             navigate('/login');
+        }
+    };
+
+    const CloseChatModal = () => {
+        setChatOpen(false);
+
+        async function fetchChatData() {
+            try {
+                const response = await getAllChats();
+                setChats(response);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        if (userExists) {
+            fetchChatData();
         }
     };
 
@@ -315,9 +332,9 @@ const Header = () => {
 
             {isChatOpen && (
                 <>
-                    <BlurBackground open={isChatOpen} onClick={() => setChatOpen(false)} />
+                    <BlurBackground open={isChatOpen} onClick={CloseChatModal} />
                     <ChatModal open={isChatOpen}>
-                        <CloseBtn onClick={() => setChatOpen(false)}>X</CloseBtn>
+                        <CloseBtn onClick={CloseChatModal}>X</CloseBtn>
                         <Chat />
                     </ChatModal>
                 </>
