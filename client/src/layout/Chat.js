@@ -181,24 +181,29 @@ const Chat = () => {
         }
     };
 
-    const markChatAsRead = (chat) => {
+    const markChatAsRead = async (chat) => {
         if (chat) {
             if (chat.messages) {
-                chat.messages = chat.messages.map((message) =>
-                    message.sender !== username && !message.read
-                        ? { ...message, read: true }
-                        : message
-                );
+                for (const message of chat.messages) {
+                    if (!message.read && message.unreadMembers.includes(username)) {
+                        try {
+                            await markMessageAsRead(chat.id, message.id, username);
+                        } catch (error) {
+                            console.error(`Failed to mark message as read: ${error}`);
+                        }
+                    }
+                }
 
-                // Call the markMessageAsRead function
-                markMessageAsRead(chat.id, username);
-
-                setSelectedChat(chat);
-                setChats((prevChats) =>
-                    prevChats.map((c) => (c.id === chat.id ? chat : c))
-                );
-
-                updateChat(chat.id, chat);
+                try {
+                    updateChat(chat.id, chat);
+                    const updatedChat = await getChatById(chat.id);
+                    setSelectedChat(updatedChat);
+                    setChats((prevChats) =>
+                        prevChats.map((c) => (c.id === chat.id ? updatedChat : c))
+                    );
+                } catch (error) {
+                    console.error(`Failed to update chat: ${error}`);
+                }
             }
         }
     };
@@ -210,11 +215,13 @@ const Chat = () => {
     };
 
     const getUnreadMessageCount = (chat) => {
-        console.log(chat);
         if (chat && chat.messages) {
-            return chat.messages.includes(username)
-                ? chat.messages.includes(username).length
-                : 0;
+            return chat.messages.reduce((count, message) => {
+                if (!message.read && message.unreadMembers.includes(username)) {
+                    return count + 1;
+                }
+                return count;
+            }, 0);
         }
         return 0;
     };

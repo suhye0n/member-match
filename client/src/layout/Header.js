@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styled, { keyframes } from 'styled-components';
 import Chat from './Chat';
 import Notification from './Notification';
-import { signout, getUserState } from "../service/ApiService";
+import { signout, getUserState, getAllChats } from "../service/ApiService";
 
 const StyledHeader = styled.div`
     width: calc(100% - 160px);
@@ -189,28 +189,7 @@ const Header = () => {
     const [isChatOpen, setChatOpen] = useState(false);
     const [isNotiOpen, setNotiOpen] = useState(false);
     const [userState, setUserState] = useState("");
-
-    const chats = [
-        {
-            id: 1,
-            name: '토이 프로젝트 멤버 모집 사이트',
-            type: 'group',
-            members: 3,
-            messages: [
-                { id: 1, text: '안녕하세요!', sender: 'User1', read: false },
-                { id: 2, text: '안녕하세요! 반가워요!', sender: 'User2', read: true },
-            ],
-        },
-        {
-            id: 2,
-            name: 'User3',
-            type: 'private',
-            messages: [
-                { id: 3, text: '안녕, User3!', sender: 'User1', read: true },
-                { id: 4, text: '안녕, User1!', sender: 'User3', read: false },
-            ],
-        },
-    ];
+    const [chats, setChats] = useState([]);
 
     const notifications = [
         {
@@ -240,10 +219,28 @@ const Header = () => {
         },
     ];
 
+    useEffect(() => {
+        async function fetchChatData() {
+            try {
+                const response = await getAllChats();
+                setChats(response);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        if (userExists) {
+            fetchChatData();
+        }
+    }, [userExists]);
+
+    const unreadChatCounts = chats.map(chat => {
+        const unreadMessages = chat.messages.filter(message => !message.read);
+        return unreadMessages.length;
+    });
+
+    const unreadChatCount = unreadChatCounts.reduce((acc, count) => acc + count, 0);
     const unreadNotificationCount = notifications.filter((notification) => !notification.read).length;
-    const unreadChatCount = chats.reduce((count, chat) => {
-        return count + chat.messages.filter((message) => !message.read).length;
-    }, 0);
 
     useEffect(() => {
         async function fetchUserState() {
