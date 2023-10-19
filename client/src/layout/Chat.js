@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getDatabase, ref, push, onValue, set } from 'firebase/database';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import {
+    addMessageToChat,
+    updateChat,
+    markMessageAsRead,
+    getChatById,
+    getAllChats,
+} from '../service/ApiService';
 
 const Container = styled.div`
     display: flex;
@@ -64,7 +68,7 @@ const ChatView = styled.div`
 
 const Scroll = styled.div`
     max-height: 60vh;
-    overflow: auto;
+    overflow-y: scroll; /* Enable vertical scrolling */
 `;
 
 const InputContainer = styled.div`
@@ -120,173 +124,175 @@ const ChatBubbleSender = styled.div`
     margin-bottom: 5px;
 `;
 
-const firebaseConfig = {
-    apiKey: "AIzaSyBT5YGKrfgzcjENaADP_QFm56JXsJA_JzQ",
-    authDomain: "swedu2023-c17ce.firebaseapp.com",
-    projectId: "swedu2023-c17ce",
-    storageBucket: "swedu2023-c17ce.appspot.com",
-    messagingSenderId: "676960709919",
-    appId: "1:676960709919:web:179417a9018bda84c8d42a",
-    measurementId: "G-93JEKWQRZ7"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-
-function Chat() {
-    const [chats, setChats] = useState([]);
+const Chat = () => {
     const [selectedChat, setSelectedChat] = useState(null);
     const [newMessage, setNewMessage] = useState('');
+    const [chats, setChats] = useState([]);
+    const [username] = useState(localStorage.getItem('username') || '');
 
-    const getUsernameFromLocalStorage = () => {
-        const username = localStorage.getItem('username');
-        return username || '기본 사용자 이름';
-    }
+    const chatScrollRef = useRef(null);
 
     useEffect(() => {
-        const chatRef = ref(db, 'chats');
-        onValue(chatRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const chatData = snapshot.val();
-                const chatList = Object.values(chatData);
-
-                const username = getUsernameFromLocalStorage();
-
-                const userChats = chatList.filter((chat) => chat.members && chat.members.includes(username));
-
-                if (userChats.length === 0) {
-                    const newChatRef = push(ref(db, 'chats'));
-                    const newChatKey = newChatRef.key;
-
-                    const chatInfo = {
-                        id: newChatKey,
-                        name: '임의의 채팅방',
-                        members: ['수현', '사용자1', '사용자2', '사용자3', '사용자4'],
-                    };
-
-                    set(ref(db, `chats/${newChatKey}`), chatInfo);
-
-                    function createMessage(sender, text) {
-                        return {
-                            sender,
-                            text,
-                            timestamp: new Date().getTime(),
-                            read: true,
-                        };
-                    }
-
-                    const messages = [
-                        createMessage('수현', '안녕하세요!'),
-                        createMessage('사용자1', '안녕!'),
-                        createMessage('수현', '오늘 어떤 일이 있었나요?'),
-                        createMessage('사용자1', '오늘은 피곤했어요.'),
-                        createMessage('수현', '이해해요. 푹 쉬세요.'),
-                    ];
-
-                    messages.forEach((message) => {
-                        const messageRef = push(ref(db, `chats/${newChatKey}/messages`));
-                        set(messageRef, message);
-                    });
-                }
-
-                setChats(userChats);
+        const fetchChats = async () => {
+            try {
+                const chatData = await getAllChats();
+                setChats(chatData);
+            } catch (error) {
+                console.error(error);
             }
-        });
+        };
+
+        fetchChats();
     }, []);
 
-    const sendMessage = () => {
-        if (newMessage.trim() === '') return;
-
-        if (selectedChat) {
-            const chatRef = ref(db, `chats/${selectedChat.id}/messages`);
-            const newMessageData = {
-                text: newMessage,
-                sender: '수현',
-                timestamp: new Date().getTime(),
-                read: true,
-            };
-            push(chatRef, newMessageData, (error) => {
-                if (error) {
-                    console.error('메시지 보내기 실패: ', error);
-                } else {
-                    setNewMessage('');
-                }
-            });
-        }
-    };
-
     useEffect(() => {
-        if (selectedChat) {
-            const chatRef = ref(db, `chats/${selectedChat.id}/messages`);
-            onValue(chatRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const messageData = snapshot.val();
-                    const messageList = Object.values(messageData);
-                    setSelectedChat((prevSelectedChat) => ({
-                        ...prevSelectedChat,
-                        messages: messageList,
-                    }));
-                }
-            });
+        if (chatScrollRef.current) {
+            chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
         }
     }, [selectedChat]);
 
-    const selectChat = (chat) => {
-        setSelectedChat(chat);
+    const sendMessage = async () => {
+        if (newMessage && selectedChat) {
+            const message = {
+                text: newMessage,
+                sender: username,
+                timestamp: Date.now(),
+                read: false,
+            };
+
+            try {
+                const updatedChat = await addMessageToChat(selectedChat.id, message);
+
+                setSelectedChat((prevChat) => ({
+                    ...prevChat,
+                    messages: [...prevChat.messages, message],
+                }));
+
+                setChats((prevChats) =>
+                    prevChats.map((chat) =>
+                        chat.id === updatedChat.id ? updatedChat : chat
+                    )
+                );
+
+                setNewMessage('');
+            } catch (error) {
+                console.error('Failed to send the message:', error);
+            }
+        }
     };
+
+    const markChatAsRead = (chat) => {
+        if (chat) {
+            if (chat.messages) {
+                chat.messages = chat.messages.map((message) =>
+                    message.sender !== username && !message.read
+                        ? { ...message, read: true }
+                        : message
+                );
+
+                // Call the markMessageAsRead function
+                markMessageAsRead(chat.id, username);
+
+                setSelectedChat(chat);
+                setChats((prevChats) =>
+                    prevChats.map((c) => (c.id === chat.id ? chat : c))
+                );
+
+                updateChat(chat.id, chat);
+            }
+        }
+    };
+
+    const handleChatItemClick = (chat) => {
+        if (chat) {
+            markChatAsRead(chat);
+        }
+    };
+
+    const getUnreadMessageCount = (chat) => {
+        console.log(chat);
+        if (chat && chat.messages) {
+            return chat.messages.includes(username)
+                ? chat.messages.includes(username).length
+                : 0;
+        }
+        return 0;
+    };
+
+    const handleChatNameChange = async (newName) => {
+        if (selectedChat) {
+            const updatedChat = { ...selectedChat, name: newName };
+
+            try {
+                const response = await updateChat(selectedChat.id, updatedChat);
+
+                setChats((prevChats) =>
+                    prevChats.map((chat) =>
+                        chat.id === response.id ? response : chat
+                    )
+                );
+
+                setSelectedChat(response);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    };
+
+    const filteredChats = chats.filter(chat => chat.members.includes(username));
 
     return (
         <Container>
             <ChatList>
-                {chats.map((chat) => (
-                    <ChatItem key={chat.id} onClick={() => selectChat(chat)}>
-                        {chat.name}
-                        {Array.isArray(chat.messages) &&
-                            chat.messages.some((message) => !message.read) && (
-                                <UnreadMessageCount>
-                                    {chat.messages.filter((message) => !message.read).length}
-                                </UnreadMessageCount>
-                            )}
+                {filteredChats.map((chat) => (
+                    <ChatItem key={chat.id} onClick={() => handleChatItemClick(chat)}>
+                        {chat.type === 'group' ? `${chat.name} (${chat.members})` : chat.name}
+                        {getUnreadMessageCount(chat) > 0 && (
+                            <UnreadMessageCount>
+                                {getUnreadMessageCount(chat)}
+                            </UnreadMessageCount>
+                        )}
                     </ChatItem>
                 ))}
             </ChatList>
-            <ChatView>
-                {selectedChat && (
-                    <>
-                        <h2>{selectedChat.name}</h2>
-                        <Scroll>
-                            {Array.isArray(selectedChat.messages) ? (
-                                selectedChat.messages.map((message) => (
-                                    <div key={message.timestamp}>
-                                        {message.sender !== '수현' && (
-                                            <ChatBubbleSender>{message.sender}</ChatBubbleSender>
-                                        )}
-                                        <ChatBubble isUser={message.sender === '수현'}>
-                                            <ChatBubbleContent>{message.text}</ChatBubbleContent>
-                                        </ChatBubble>
-                                        <ChatBubbleTimestamp isUser={message.sender === '수현'}>
-                                            {new Date(message.timestamp).toLocaleString()}
-                                        </ChatBubbleTimestamp>
-                                    </div>
-                                ))
-                            ) : (
-                                <div>No messages</div>
-                            )}
-                        </Scroll>
-                        <InputContainer>
-                            <Input
-                                type="text"
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                            />
-                            <SendButton onClick={sendMessage}>전송</SendButton>
-                        </InputContainer>
-                    </>
-                )}
-            </ChatView>
+            {selectedChat && (
+                <ChatView>
+                    <h2>{selectedChat.name}</h2>
+                    <Scroll ref={chatScrollRef}>
+                        {selectedChat.messages.map((message) => (
+                            <div key={message.id}>
+                                {message.sender !== username && (
+                                    <ChatBubbleSender>{message.sender}</ChatBubbleSender>
+                                )}
+                                <ChatBubble isUser={message.sender === username}>
+                                    <ChatBubbleContent>{message.text}</ChatBubbleContent>
+                                </ChatBubble>
+                                <ChatBubbleTimestamp isUser={message.sender === username}>
+                                    {new Date(message.timestamp).toLocaleString()}
+                                </ChatBubbleTimestamp>
+                            </div>
+                        ))}
+                    </Scroll>
+                    <InputContainer>
+                        <Input
+                            type="text"
+                            placeholder="메시지를 입력하세요"
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                    sendMessage();
+                                }
+                            }}
+                        />
+                        <SendButton onClick={sendMessage}>
+                            전송
+                        </SendButton>
+                    </InputContainer>
+                </ChatView>
+            )}
         </Container>
     );
-}
+};
 
 export default Chat;

@@ -381,3 +381,48 @@ export const deleteCalendarEvent = async (id) => {
         throw error;
     }
 }
+
+export const addMessageToChat = async (chatId, message) => {
+    try {
+        const response = await call(`/chats/${chatId}/messages`, "POST", message);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const updateChat = async (chatId, updatedChat) => {
+    try {
+        const response = await call(`/chats/${chatId}`, "PATCH", updatedChat);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const markMessageAsRead = async (chatId, messageId, memberName) => {
+    try {
+        const response = await call(`/chats/${chatId}/messages/${messageId}/read/${memberName}`, "PATCH");
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getChatById = async (chatId) => {
+    try {
+        const response = await call(`/chats/${chatId}`, "GET");
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getAllChats = async () => {
+    try {
+        const response = await call("/chats", "GET");
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
