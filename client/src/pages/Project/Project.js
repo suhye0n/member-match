@@ -615,13 +615,10 @@ const Project = () => {
         const raterUsername = localStorage.getItem('username');
         const ratedUsername = selectedApplicant;
         try {
-            const response = await rateUser(raterUsername, ratedUsername, rating);
-            console.log(raterUsername, ratedUsername, rating);
-            if (response) {
-                alert('평가하기가 완료되었습니다');
-                setRating(0);
-                setRateOpen(false);
-            }
+            await rateUser(raterUsername, ratedUsername, rating);
+            alert('평가하기가 완료되었습니다');
+            setRating(0);
+            setRateOpen(false);
         } catch (error) {
             console.error(error);
         }
