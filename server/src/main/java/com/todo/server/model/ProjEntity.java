@@ -20,7 +20,7 @@ import java.util.HashMap;
 public class ProjEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "P_KEY", nullable = false)
+    @Column(name = "P_ID", nullable = false)
     private int key;
 
     @Column(name = "P_TITLE", nullable = false)
@@ -54,7 +54,7 @@ public class ProjEntity {
 
     @ElementCollection
     @CollectionTable(name = "PROJS_RECRUIT", joinColumns = @JoinColumn(name = "P_ID"))
-    @MapKeyColumn(name = "job_position")
+    @MapKeyColumn(name = "P_POSITION")
     @Column(name = "P_RECRUIT")
     private Map<String, Integer> recruitment;
 
