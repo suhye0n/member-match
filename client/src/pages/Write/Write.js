@@ -113,9 +113,9 @@ const Write = () => {
 
   const SelectedCategories = ({ selectedCategory, removeCategory }) => {
     return selectedCategory ? (
-      <div className="selected-category" onClick={() => removeCategory(selectedCategory)}>
+      <span className="selected-category" onClick={() => removeCategory(selectedCategory)}>
         #{selectedCategory} &times;
-      </div>
+      </span>
     ) : null;
   };
 
@@ -307,8 +307,9 @@ const Write = () => {
         value={description}
         onChange={e => setDescription(e.target.value)}
       />
-      <Span>카테고리</Span>
+      <Span style={{ marginBottom: '5px' }}>카테고리</Span>
       <SelectedCategories selectedCategory={selectedCategory} removeCategory={removeCategory} />
+
       <Autosuggest
         suggestions={suggestions}
         onSuggestionsFetchRequested={onSuggestionsFetchRequested}
@@ -318,8 +319,11 @@ const Write = () => {
         inputProps={categoryInputProps}
         renderInputComponent={renderInputComponent}
       />
-      <Span>기술 스택</Span>
-      <SelectedTechStacks techStacks={techStacks} removeTechStack={removeTechStack} />
+
+      <Span style={{ marginBottom: '3px' }}>기술 스택</Span>
+      <div style={{ width: '100%', maxWidth: '358px' }}>
+        <SelectedTechStacks techStacks={techStacks} removeTechStack={removeTechStack} />
+      </div>
       <Autosuggest
         suggestions={techSuggestions}
         onSuggestionsFetchRequested={onTechSuggestionsFetchRequested}
