@@ -261,11 +261,6 @@ const Write = () => {
       if (!projectResponse || !projectResponse.key) {
         return;
       }
-
-      if (projectId) {
-        alert('프로젝트가 수정되었습니다.');
-        navigate(`/project?id=${projectId}`);
-      }
     } catch (error) {
       console.error('프로젝트 추가 또는 수정 오류:', error);
     }

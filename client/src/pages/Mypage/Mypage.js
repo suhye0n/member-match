@@ -142,11 +142,6 @@ const Mypage = () => {
     if (emailInput && password) {
       try {
         await withdrawal({ email: emailInput, password: password });
-        localStorage.removeItem("ACCESS_TOKEN");
-        localStorage.removeItem("username");
-        localStorage.removeItem("email");
-        alert('회원 탈퇴가 완료되었습니다.');
-        window.location.href = "/";
       } catch (error) {
         alert("오류가 발생했습니다. 다시 시도해주세요.");
       }

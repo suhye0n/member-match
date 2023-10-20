@@ -114,7 +114,15 @@ export const updateState = async (nickname, state) => {
 
 export const withdrawal = async userDTO => {
     try {
-        await call("/auth/withdrawal", "DELETE", userDTO);
+        const response = await call("/auth/withdrawal", "DELETE", userDTO);
+        if (response) {
+            console.log(response);
+            // localStorage.removeItem("ACCESS_TOKEN");
+            // localStorage.removeItem("username");
+            // localStorage.removeItem("email");
+            // alert('회원 탈퇴가 완료되었습니다.');
+            // window.location.href = "/";
+        }
     } catch (error) {
         console.error(error.status);
         alert("회원 탈퇴를 실패하였습니다.");
@@ -197,10 +205,10 @@ export const recProject = async (projectId, projDTO) => {
 
 export const updateProject = async (projectId, projDTO) => {
     try {
-        const response = await call(`/proj/update/${projectId}`, "PUT", projDTO);
+        await call(`/proj/update/${projectId}`, "PUT", projDTO);
 
-        if (response) {
-        }
+        alert('프로젝트가 수정되었습니다.');
+        window.location.href = `/project?id=${projectId}`;
     } catch (error) {
         console.error("프로젝트 업데이트 오류:", error);
 
