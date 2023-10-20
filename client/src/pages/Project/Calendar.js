@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import { addCalendarEvent,
+import {
+    addCalendarEvent,
     getCalendarEventsByProjectKey,
     updateCalendarEvent,
     deleteCalendarEvent,
@@ -16,7 +17,7 @@ const CalendarContainer = styled.div`
         color: #000;
         padding: 0;
         margin: 0;
-        background-color: transparent !important;
+        background-color: transparent;
     }
     .rbc-calendar {
         width: 100%;
@@ -62,6 +63,66 @@ const BlurBackground = styled.div`
     backdrop-filter: blur(5px);
     z-index: 998;
     transition: opacity 0.9s ease;
+`;
+
+const Input = styled.input`
+  padding: 14px;
+  margin: 8px 0 20px 0;
+  width: calc(100% - 28px);
+  max-width: 330px;
+  border-radius: 5px;
+  border: 1px solid #eee;
+  box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
+`;
+
+const Title = styled.h1`
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  font-weight: bold;
+  padding: 30px 0;
+`;
+
+const Button = styled.button`
+  max-width: 358px;
+  margin: 14px 15px;
+  padding: 15px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  white-space: normal;
+  overflow-wrap: break-word;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+  transition: 0.4s;
+  background: #97C8F0;
+
+  &:hover {
+    opacity: 0.7;
+  }
+`;
+
+const CloseBtn = styled.button`
+    text-align: center;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50%;
+    padding: 10px;
+    font-size: 1rem;
+    background: #feaca9 !important;
+    border: none;
+    transition: 0.4s;
+    cursor: pointer;
+    white-space: normal;
+    overflow-wrap: break-word;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+    z-index: 999;
+
+    &:hover {
+        opacity: 0.7;
+    }
 `;
 
 const CustomCalendar = ({ projectId }) => {
@@ -233,28 +294,28 @@ const CustomCalendar = ({ projectId }) => {
             {isModalOpen && (
                 <>
                     <BlurBackground open={isModalOpen} onClick={() => setModalOpen(false)} />
-                    <Modal open={isModalOpen} onClose={closeModal}>
-                        <h2>일정 추가</h2>
+                    <Modal open={isModalOpen} onClose={closeModal} style={{ textAlign: 'center' }}>
+                        <Title>일정 추가</Title>
                         <div>
-                            <label>제목:</label>
-                            <input
+                            <Input
                                 type="text"
+                                placeholder="제목"
                                 name="title"
                                 value={newEvent.title}
                                 onChange={handleInputChange}
                             />
                         </div>
                         <div>
-                            <label>설명:</label>
-                            <input
+                            <Input
                                 type="text"
+                                placeholder="설명"
                                 name="description"
                                 value={newEvent.description}
                                 onChange={handleInputChange}
                             />
                         </div>
-                        <button onClick={handleAddEvent}>추가</button>
-                        <button onClick={closeModal}>취소</button>
+                        <Button onClick={handleAddEvent}>추가</Button>
+                        <Button className='cancel' onClick={closeModal}>취소</Button>
                     </Modal>
                 </>
             )}
@@ -276,27 +337,27 @@ const EventEditor = ({ event, onChange, onUpdate, onDelete, onClose }) => {
     return (
         <>
             <BlurBackground />
-            <Modal>
-                <h2>일정 수정</h2>
+            <Modal style={{textAlign: 'center'}}>
+                <Title>일정 수정</Title>
+                <CloseBtn onClick={onClose}>X</CloseBtn>
                 <div>
-                    <label>제목:</label>
-                    <input
+                    <Input
                         type="text"
+                        placeholder="제목"
                         value={event.title}
                         onChange={(e) => onChange({ ...event, title: e.target.value })}
                     />
                 </div>
                 <div>
-                    <label>설명:</label>
-                    <input
+                    <Input
                         type="text"
+                        placeholder="설명"
                         value={event.description}
                         onChange={(e) => onChange({ ...event, description: e.target.value })}
                     />
                 </div>
-                <button onClick={onUpdate}>수정</button>
-                <button onClick={onDelete}>삭제</button>
-                <button onClick={onClose}>취소</button>
+                <Button onClick={onUpdate}>수정</Button>
+                <Button className='cancel' onClick={onDelete}>삭제</Button>
             </Modal>
         </>
     );

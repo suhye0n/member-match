@@ -4,7 +4,8 @@ import styled, { keyframes } from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
 import { CgProfile } from 'react-icons/cg';
 import { BsStarFill, BsStarHalf, BsStar } from 'react-icons/bs';
-import { MdOutlineReportGmailerrorred, MdStarBorder, MdBlock } from 'react-icons/md';
+import { MdOutlineReportGmailerrorred, MdStarBorder, MdBlock, MdPersonOutline } from 'react-icons/md';
+import { GrMapLocation } from 'react-icons/gr';
 import Chat from '../../layout/Chat';
 import CustomCalendar from './Calendar';
 import {
@@ -306,6 +307,18 @@ const CountInput = styled.input`
     box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
 `;
 
+const StarContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+`;
+
+const StarIcon = styled.div`
+  color: #FFD700;
+  font-size: 28px;
+`;
+
 const Project = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -455,7 +468,8 @@ const Project = () => {
         for (let i = 0; i < applicant.answers.length; i++) {
             answersToDisplay.push(
                 <div key={i}>
-                    <p>질문 {i + 1}: {questions[i]}</p>
+                    <br />
+                    <b>질문 {i + 1}: {questions[i]}</b>
                     <p>{applicant.answers[i]}</p>
                 </div>
             );
@@ -582,9 +596,9 @@ const Project = () => {
     const submitRating = async () => {
         const raterUsername = localStorage.getItem('username');
         const ratedUsername = selectedApplicant;
-        console.log(raterUsername, ratedUsername, rating);
         try {
             const response = await rateUser(raterUsername, ratedUsername, rating);
+            console.log(raterUsername, ratedUsername, rating);
             if (response) {
                 alert('평가하기가 완료되었습니다');
                 setRating(0);
@@ -647,22 +661,24 @@ const Project = () => {
         setProfileOpen(true);
     };
 
-    const fetchAverageRatings = async () => {
-        const ratings = {};
-        for (const applicant of applicants) {
-            try {
-                const rating = await getAverageRating(applicant.name);
-                ratings[applicant.name] = rating;
-            } catch (error) {
-                console.error(`평균 별점 가져오기 오류 (${applicant.name}):`, error);
-            }
-        }
-        setAverageRatings(ratings);
-    };
-
     useEffect(() => {
+        async function fetchAverageRatings() {
+            const ratings = {};
+            for (const applicant of applicants) {
+                try {
+                    const rating = await getAverageRating(applicant.name);
+                    const floatRating = parseFloat(rating);
+                    ratings[applicant.name] = floatRating !== null ? floatRating.toFixed(1) : null;
+                } catch (error) {
+                    console.error(`평균 별점 가져오기 오류 (${applicant.name}):`, error);
+                    ratings[applicant.name] = null;
+                }
+            }
+            setAverageRatings(ratings);
+        }
+
         fetchAverageRatings();
-    }, []);
+    }, [applicants]);
 
     const formatStateText = () => {
         if (userState) {
@@ -735,24 +751,33 @@ const Project = () => {
             {isProfileOpen && (
                 <>
                     <BlurBackground open={isProfileOpen} onClick={() => setProfileOpen(false)} />
-                    <Modal open={isProfileOpen}>
-                        <CloseBtn onClick={() => setProfileOpen(false)}>X</CloseBtn>
-                        <Title>{selectedApplicant ? `${selectedApplicant}님 프로필 정보` : '프로필 정보'}</Title>
+                    <Modal open={isProfileOpen} style={{ paddingBottom: '70px' }}>
+                        <CloseBtn onClick={() => {
+                            setProfileOpen(false);
+                            setUserLocation('');
+                        }}>X</CloseBtn>
+                        <Title>프로필 정보</Title>
 
                         {averageRating !== null ? (
-                            <div>
-                                <p>평균 별점: {averageRating}</p>
-                                {averageRating >= 1 ? <BsStarFill /> : <BsStar />}
-                                {averageRating >= 2 ? <BsStarFill /> : averageRating >= 1.5 ? <BsStarHalf /> : <BsStar />}
-                                {averageRating >= 3 ? <BsStarFill /> : averageRating >= 2.5 ? <BsStarHalf /> : <BsStar />}
-                                {averageRating >= 4 ? <BsStarFill /> : averageRating >= 3.5 ? <BsStarHalf /> : <BsStar />}
-                                {averageRating >= 5 ? <BsStarFill /> : averageRating >= 4.5 ? <BsStarHalf /> : <BsStar />}
-                            </div>
+                            <>
+                                <StarContainer>
+                                    {averageRating >= 1 ? <StarIcon><BsStarFill /></StarIcon> : <StarIcon><BsStar /></StarIcon>}
+                                    {averageRating >= 2 ? <StarIcon><BsStarFill /></StarIcon> : averageRating >= 1.5 ? <StarIcon><BsStarHalf /></StarIcon> : <StarIcon><BsStar /></StarIcon>}
+                                    {averageRating >= 3 ? <StarIcon><BsStarFill /></StarIcon> : averageRating >= 2.5 ? <StarIcon><BsStarHalf /></StarIcon> : <StarIcon><BsStar /></StarIcon>}
+                                    {averageRating >= 4 ? <StarIcon><BsStarFill /></StarIcon> : averageRating >= 3.5 ? <StarIcon><BsStarHalf /></StarIcon> : <StarIcon><BsStar /></StarIcon>}
+                                    {averageRating >= 5 ? <StarIcon><BsStarFill /></StarIcon> : averageRating >= 4.5 ? <StarIcon><BsStarHalf /></StarIcon> : <StarIcon><BsStar /></StarIcon>}
+                                </StarContainer>
+                                <p style={{ textAlign: 'center', margin: '0', color: '#999' }}>({averageRating.toFixed(1)})</p>
+                            </>
                         ) : null}
 
+                        <div style={{ textAlign: 'center' }}>
+                            <p><MdPersonOutline />&nbsp; {selectedApplicant}</p>
+                        </div>
+
                         {userLocation && (
-                            <div>
-                                <p>지역: {userLocation}</p>
+                            <div style={{ textAlign: 'center' }}>
+                                <p><GrMapLocation />&nbsp; {userLocation}</p>
                             </div>
                         )}
                         {userState && (
@@ -761,6 +786,9 @@ const Project = () => {
                             </div>
                         )}
 
+                        {averageRating === null && !userLocation && !userState && (
+                            <p style={{ textAlign: 'center', color: '#FFB19A' }}>프로필 정보 없음</p>
+                        )}
                     </Modal>
                 </>
             )}
@@ -781,18 +809,14 @@ const Project = () => {
                     <Modal open={isRateOpen}>
                         <CloseBtn onClick={() => setRateOpen(false)}>X</CloseBtn>
                         <Title>{selectedApplicant ? `${selectedApplicant}님 평가하기` : '평가하기'}</Title>
-                        <div>
-                            <div>
-                                {starIcons.map((Icon, index) => (
-                                    <Icon
-                                        key={index}
-                                        onClick={() => handleStarClick(index + 1)}
-                                        style={{ cursor: 'pointer' }}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                        <button onClick={submitRating}>평가 완료</button>
+                        <StarContainer>
+                            {starIcons.map((Icon, index) => (
+                                <StarIcon key={index} onClick={() => handleStarClick(index + 1)}>
+                                    <Icon />
+                                </StarIcon>
+                            ))}
+                        </StarContainer>
+                        <BlackBtn style={{ float: 'none', margin: '60px auto 20px auto', textAlign: 'center', display: 'block' }} onClick={submitRating}>평가 완료</BlackBtn>
                     </Modal>
                 </>
             )}
@@ -858,16 +882,16 @@ const Project = () => {
                                 <p>{applicant.name} &nbsp;</p>
                                 {averageRatings[applicant.name] !== undefined && (
                                     <>
-                                        {/* <p> {averageRatings[applicant.name]}</p> */}
                                         {averageRatings[applicant.name] !== null && (
-                                            <>
-                                                {averageRatings[applicant.name] >= 1 ? <BsStarFill /> : <BsStar />}
-                                                {averageRatings[applicant.name] >= 2 ? <BsStarFill /> : averageRatings[applicant.name] >= 1.5 ? <BsStarHalf /> : <BsStar />}
-                                                {averageRatings[applicant.name] >= 3 ? <BsStarFill /> : averageRatings[applicant.name] >= 2.5 ? <BsStarHalf /> : <BsStar />}
-                                                {averageRatings[applicant.name] >= 4 ? <BsStarFill /> : averageRatings[applicant.name] >= 3.5 ? <BsStarHalf /> : <BsStar />}
-                                                {averageRatings[applicant.name] >= 5 ? <BsStarFill /> : averageRatings[applicant.name] >= 4.5 ? <BsStarHalf /> : <BsStar />}
-                                            </>
+                                            <StarContainer className='small'>
+                                                {averageRatings[applicant.name] >= 1 ? <StarIcon><BsStarFill /></StarIcon> : <StarIcon><BsStar /></StarIcon>}
+                                                {averageRatings[applicant.name] >= 2 ? <StarIcon><BsStarFill /></StarIcon> : averageRatings[applicant.name] >= 1.5 ? <StarIcon><BsStarHalf /></StarIcon> : <StarIcon><BsStar /></StarIcon>}
+                                                {averageRatings[applicant.name] >= 3 ? <StarIcon><BsStarFill /></StarIcon> : averageRatings[applicant.name] >= 2.5 ? <StarIcon><BsStarHalf /></StarIcon> : <StarIcon><BsStar /></StarIcon>}
+                                                {averageRatings[applicant.name] >= 4 ? <StarIcon><BsStarFill /></StarIcon> : averageRatings[applicant.name] >= 3.5 ? <StarIcon><BsStarHalf /></StarIcon> : <StarIcon><BsStar /></StarIcon>}
+                                                {averageRatings[applicant.name] >= 5 ? <StarIcon><BsStarFill /></StarIcon> : averageRatings[applicant.name] >= 4.5 ? <StarIcon><BsStarHalf /></StarIcon> : <StarIcon><BsStar /></StarIcon>}
+                                            </StarContainer>
                                         )}
+                                        &nbsp;<p style={{ color: '#999', fontSize: '14px' }}> ({averageRatings[applicant.name]})</p>
                                     </>
                                 )}
                                 <div className="btns">

@@ -56,7 +56,7 @@ export const signin = async userDTO => {
         localStorage.setItem(email, userDTO.email);
         localStorage.setItem(location, response.location);
         localStorage.setItem(userId, response.id);
-        window.location.href = "/";
+        window.location.href = "/list";
     }
 }
 

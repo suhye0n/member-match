@@ -67,3 +67,11 @@ a {
   text-align: center !important;
   margin-right: 200px !important;
 }
+
+.small * {
+  font-size: 15px;
+}
+
+.cancel {
+  background: #feaca9 !important;
+}

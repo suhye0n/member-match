@@ -231,7 +231,7 @@ const Login = () => {
     const accessToken = localStorage.getItem('ACCESS_TOKEN');
 
     if (accessToken) {
-      window.location.href = "/";
+      window.location.href = "/list";
       return;
     }
   }, [])
