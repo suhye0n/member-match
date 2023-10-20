@@ -2,7 +2,7 @@
   font-family: 'JeonjuCraftGoR';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/JeonjuCraftGoR.woff2') format('woff2');
   font-weight: normal;
-font-style: normal;
+  font-style: normal;
 }
 
 * {
@@ -11,6 +11,24 @@ font-style: normal;
 
 body {
   margin: 0;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 5px;
+  background-color: #f0f0f0;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #fcb9aa;
+  transition: all 0.4s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  opacity: .8;
 }
 
 a {

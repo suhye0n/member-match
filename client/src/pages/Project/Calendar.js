@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import { addCalendarEvent, getCalendarEventsByProjectKey, getCalendarEventById, updateCalendarEvent, deleteCalendarEvent, createNotification, getAllProjects } from "../../service/ApiService";
-import { FaArrowLeft, FaArrowRight, FaRegCalendar, FaTrash } from 'react-icons/fa';
+import { addCalendarEvent,
+    getCalendarEventsByProjectKey,
+    updateCalendarEvent,
+    deleteCalendarEvent,
+    createNotification,
+    getAllProjects
+} from "../../service/ApiService";
 
 const CalendarContainer = styled.div`
     * {
@@ -23,24 +28,6 @@ const CalendarContainer = styled.div`
     }
     .rbc-event {
         background-color: transparent;
-    }
-`;
-
-const fadeIn = keyframes`
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-`;
-
-const fadeOut = keyframes`
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
     }
 `;
 

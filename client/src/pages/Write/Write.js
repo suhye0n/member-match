@@ -83,12 +83,10 @@ const Write = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const projectId = queryParams.get('id');
-
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('#');
   const [techStack, setTechStack] = useState('#');
-  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [techStacks, setTechStacks] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -172,11 +170,6 @@ const Write = () => {
       setTechStack(techStackToAdd);
       setTechStacks([...techStacks, techStackToAdd]);
     }
-  };
-
-  const resetCategoryInput = () => {
-    setCategory('#');
-    setSelectedCategory('');
   };
 
   const resetTechStackInput = () => {

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
 import { CgProfile } from 'react-icons/cg';
-import { MdOutlineDescription } from 'react-icons/md';
 import { getAllProjects, apply } from "../../service/ApiService";
 
 const Heading = styled.div`
@@ -356,20 +354,22 @@ const List = () => {
                         </div>
                         <div>
                             <span><BiLogoReact /></span>
-                            <span>{item.stack.map((stack, index) => (
-                                <span key={index}>#{stack}</span>
-                            ))}</span>
+                            <span>
+                                {item.stack.map((stack, index, array) => (
+                                    index === array.length - 1 ? `#${stack}` : `#${stack}, `
+                                ))}
+                            </span>
                         </div>
                         <div>
                             <span><CgProfile /></span>
                             <span>
-                                {Object.keys(item.recruitment).map((position, index) => {
+                                {Object.keys(item.recruitment).map((position, index, positionsArray) => {
                                     const recruitmentCount = item.recruitment[position];
                                     const applicantsCount = item.applicants.filter(applicant => applicant.position === position).length;
                                     return (
-                                        <span key={index}>
-                                            {`${position} ${applicantsCount}/${recruitmentCount}`}
-                                        </span>
+                                        index === positionsArray.length - 1
+                                            ? `${position} ${applicantsCount}/${recruitmentCount}`
+                                            : `${position} ${applicantsCount}/${recruitmentCount}, `
                                     );
                                 })}
                             </span>
@@ -378,15 +378,13 @@ const List = () => {
                             <button disabled style={{ background: "#ccc", cursor: "not-allowed" }}>
                                 이미 지원함
                             </button>
-                        ) : (
-                            userMemberProject(item) ? (
-                                <button disabled style={{ background: "#ccc", cursor: "not-allowed" }}>
-                                    지원할 수 없음
-                                </button>
-                            ) : (
-                                <button onClick={() => handleApplyClick(item.key)}>지원하기</button>
-                            )
-                        )}
+                        ) : userMemberProject(item) ? (
+                            <button disabled style={{ background: "#ccc", cursor: "not-allowed" }}>
+                                지원할 수 없음
+                            </button>
+                        ) : localStorage.getItem('username') ? (
+                            <button onClick={() => handleApplyClick(item.key)}>지원하기</button>
+                        ) : null}
                     </ListItem>
                 ))}
 

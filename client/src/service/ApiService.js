@@ -323,7 +323,7 @@ export const getUserState = async (username) => {
         const response = await call(`/auth/user/${username}/state`, "GET");
         return response.state;
     } catch (error) {
-        console.error("사용자 상태 가져오기 오류:", error);
+        // console.error("사용자 상태 가져오기 오류:", error);
         throw error;
     }
 }

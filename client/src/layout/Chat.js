@@ -129,7 +129,6 @@ const Chat = () => {
     const [newMessage, setNewMessage] = useState('');
     const [chats, setChats] = useState([]);
     const [username] = useState(localStorage.getItem('username') || '');
-
     const chatScrollRef = useRef(null);
 
     useEffect(() => {
@@ -224,26 +223,6 @@ const Chat = () => {
             }, 0);
         }
         return 0;
-    };
-
-    const handleChatNameChange = async (newName) => {
-        if (selectedChat) {
-            const updatedChat = { ...selectedChat, name: newName };
-
-            try {
-                const response = await updateChat(selectedChat.id, updatedChat);
-
-                setChats((prevChats) =>
-                    prevChats.map((chat) =>
-                        chat.id === response.id ? response : chat
-                    )
-                );
-
-                setSelectedChat(response);
-            } catch (error) {
-                console.error(error);
-            }
-        }
     };
 
     const filteredChats = chats.filter(chat => chat.members.includes(username));

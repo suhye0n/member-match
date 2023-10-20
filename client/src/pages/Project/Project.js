@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import { BiCategory, BiLogoReact } from 'react-icons/bi';
 import { CgProfile } from 'react-icons/cg';
 import { BsStarFill, BsStarHalf, BsStar } from 'react-icons/bs';
-import { MdOutlineReportGmailerrorred, MdStarBorder, MdChatBubbleOutline, MdBlock } from 'react-icons/md';
+import { MdOutlineReportGmailerrorred, MdStarBorder, MdBlock } from 'react-icons/md';
 import Chat from '../../layout/Chat';
 import CustomCalendar from './Calendar';
 import {
@@ -818,14 +818,18 @@ const Project = () => {
                             <p>{project.desc}</p>
                             <FlexContainer>
                                 <Icon><BiCategory /></Icon>
-                                <Tag>{project.cate}</Tag>
+                                <Tag>#{project.cate}</Tag>
                             </FlexContainer>
                             <FlexContainer>
                                 <Icon><BiLogoReact /></Icon>
-                                {Array.isArray(project.stack) && project.stack.map((stackItem, index) => (
-                                    <Tag key={index}>{stackItem}</Tag>
+                                {Array.isArray(project.stack) && project.stack.map((stackItem, index, stackArray) => (
+                                    <span key={index}>
+                                        <Tag>#{stackItem}</Tag>
+                                        {index === stackArray.length - 1 ? null : ','}
+                                    </span>
                                 ))}
                             </FlexContainer>
+
                             {isCurrentUser(project.member[0].name) ? (
                                 <>
                                     <BlackBtn onClick={() => {

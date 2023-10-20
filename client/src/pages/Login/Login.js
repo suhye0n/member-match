@@ -43,15 +43,15 @@ const Button = styled.button`
   color: #fff;
   border: none;
   border-radius: 50px;
-  transition: 0.4s;
   cursor: pointer;
   white-space: normal;
   overflow-wrap: break-word;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+  transition: 0.4s;
 
-    &:hover {
-        opacity: 0.7;
-    }
+  &:hover {
+    opacity: 0.7;
+  }
 `;
 
 const CloseBtn = styled.button`

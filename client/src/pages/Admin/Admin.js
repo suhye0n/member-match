@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { BiTrash, BiMessageSquareDetail } from 'react-icons/bi';
 import { getAllReports, updateState, deleteReport } from "../../service/ApiService";
@@ -154,21 +153,11 @@ const Input = styled.input`
     box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
 `;
 
-const Select = styled.select`
-    padding: 14px;
-    margin: 8px 0 20px 0;
-    width: 100%;
-    border-radius: 5px;
-    border: none;
-    box-shadow: inset -3px -3px 6px #fff, inset 2px 2px 5px #e6e6e6;
-`;
-
 const Admin = () => {
     const [reports, setReports] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedReport, setSelectedReport] = useState(null);
     const [completionDate, setCompletionDate] = useState('');
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         loadReports();
@@ -178,10 +167,8 @@ const Admin = () => {
         try {
             const response = await getAllReports();
             setReports(response);
-            setLoading(false);
         } catch (error) {
             console.error(error);
-            setLoading(false);
         }
     };
 

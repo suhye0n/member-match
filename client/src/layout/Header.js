@@ -188,7 +188,6 @@ const Header = () => {
     const isAdmin = username === "admin";
     const [isChatOpen, setChatOpen] = useState(false);
     const [isNotiOpen, setNotiOpen] = useState(false);
-    const [userState, setUserState] = useState("");
     const [chats, setChats] = useState([]);
     const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
@@ -234,10 +233,8 @@ const Header = () => {
         async function fetchUserState() {
             try {
                 const response = await getUserState(username);
-                setUserState(response);
                 checkUserState(response);
             } catch (error) {
-                console.error(error);
             }
         }
 
