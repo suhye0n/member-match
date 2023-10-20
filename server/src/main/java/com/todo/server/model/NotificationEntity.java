@@ -12,20 +12,23 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "notification")
+@Table(name = "NOTIFICATIONS")
 public class NotificationEntity {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "N_ID", nullable = false)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "C_USERNAME", nullable = false)
     private String username;
 
-    @Column(nullable = false)
+    @Column(name = "C_TEXT", nullable = false)
     private String text;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "C_DATE", nullable = false)
     private Date date;
 
+    @Column(name = "C_READ", nullable = false)
     private boolean read;
 }

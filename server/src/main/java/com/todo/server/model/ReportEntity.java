@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Table(name = "reports")
+@Table(name = "REPORTS")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,12 +18,12 @@ public class ReportEntity {
     @Column(name = "R_KEY")
     private Long id;
 
-    @Column(name = "R_REASON", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "R_REASON", nullable = false)
     private String reason;
 
-    @Column(name = "R_REPORTER", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "R_REPORTER", nullable = false)
     private String reporter;
 
-    @Column(name = "R_TARGET", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "R_TARGET", nullable = false)
     private String target;
 }

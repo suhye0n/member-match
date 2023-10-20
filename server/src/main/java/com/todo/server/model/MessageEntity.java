@@ -13,14 +13,14 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "messages")
+@Table(name = "MESSAGES")
 public class MessageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "M_ID")
+    @Column(name = "M_ID", nullable = false)
     private Long id;
 
-    @Column(name = "M_TEXT", columnDefinition = "TEXT")
+    @Column(name = "M_TEXT", nullable = false)
     private String text;
 
     @Column(name = "M_SENDER", nullable = false)
@@ -29,7 +29,8 @@ public class MessageEntity {
     @Column(name = "M_TIMESTAMP", nullable = false)
     private Date timestamp;
 
-    @Column(name = "M_UNREAD", nullable = false)
     @ElementCollection
+    @CollectionTable(name = "MESSAGES_UNREAD")
+    @Column(name = "U_MEMBER")
     private List<String> unreadMembers;
 }

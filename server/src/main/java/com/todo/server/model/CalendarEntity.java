@@ -17,28 +17,28 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "calendar")
+@Table(name = "CALENDARS")
 public class CalendarEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CAL_ID")
+    @Column(name = "C_ID")
     private Long id;
 
-    @Column(name = "CAL_TITLE", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "C_TITLE", nullable = false)
     private String title;
 
-    @Column(name = "CAL_DESC", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "C_DESC")
     private String description;
 
-    @Column(name = "CAL_START", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "C_START", nullable = false)
     private Date start;
 
-    @Column(name = "CAL_END", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "C_END", nullable = false)
     private Date end;
 
-    @Column(name = "CAL_KEY", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "C_KEY", nullable = false)
     private String projectKey;
 
-    @Column(name = "CAL_CREATOR", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "C_CREATOR", nullable = false)
     private String creator;
 }

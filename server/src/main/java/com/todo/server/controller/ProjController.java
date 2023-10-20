@@ -36,9 +36,9 @@ public class ProjController {
     public ResponseEntity<String> deleteProject(@PathVariable int id) {
         boolean deleted = projService.deleteProjEntity(id);
         if (deleted) {
-            return ResponseEntity.ok("Project deleted successfully.");
+            return ResponseEntity.ok("프로젝트 삭제 성공");
         } else {
-            return ResponseEntity.badRequest().body("Project not found.");
+            return ResponseEntity.badRequest().body("프로젝트를 찾을 수 없음");
         }
     }
 }

@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 @Entity
-@Table(name = "proj")
+@Table(name = "PROJS")
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,51 +20,63 @@ import java.util.HashMap;
 public class ProjEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "P_KEY")
+    @Column(name = "P_KEY", nullable = false)
     private int key;
 
+    @Column(name = "P_TITLE", nullable = false)
     private String title;
+    
+    @Column(name = "P_DESC")
     private String desc;
+    
+    @Column(name = "P_CATE")
     private String cate;
 
     @ElementCollection
-    @CollectionTable(name = "proj_stack", joinColumns = @JoinColumn(name = "proj_id"))
+    @CollectionTable(name = "PROJS_STACK", joinColumns = @JoinColumn(name = "proj_id"))
+    @Column(name = "P_STACK")
     private List<String> stack;
 
+    @Column(name = "P_RECKEY")
     private int reckey;
 
     @Convert(converter = MemberConverter.class)
+    @Column(name = "P_MEMBER", nullable = false)
     private List<Map<String, String>> member;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "proj_id")
+    @JoinColumn(name = "P_ID")
     private List<ApplicantInfoEntity> applicants;
 
     @ElementCollection
-    @CollectionTable(name = "proj_question", joinColumns = @JoinColumn(name = "proj_id"))
+    @CollectionTable(name = "PROJS_QUESTIOM", joinColumns = @JoinColumn(name = "P_ID"))
     private List<String> question;
 
     @ElementCollection
-    @CollectionTable(name = "proj_recruitment", joinColumns = @JoinColumn(name = "proj_id"))
+    @CollectionTable(name = "PROJS_RECRUIT", joinColumns = @JoinColumn(name = "P_ID"))
     @MapKeyColumn(name = "job_position")
-    @Column(name = "number_of_positions")
+    @Column(name = "P_RECRUIT")
     private Map<String, Integer> recruitment;
 
+    @Column(name = "P_RECDATE")
     private Date recdate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @ColumnDefault("CURRENT_TIMESTAMP")
     @CreationTimestamp
+    @Column(name = "P_CREATED")
     private Date createdate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
+    @Column(name = "P_UPDATED")
     private Date updatedate;
 
+    @Column(name = "P_STATUS")
     private boolean status;
 
     @Entity
-    @Table(name = "applicant_info")
+    @Table(name = "PROJS_APPLICANT")
     @Data
     @Builder
     @NoArgsConstructor
@@ -72,12 +84,17 @@ public class ProjEntity {
     public static class ApplicantInfoEntity {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name = "A_ID", nullable = false)
         private int id;
+
+        @Column(name = "A_NAME", nullable = false)
         private String name;
+
+        @Column(name = "A_POSITION", nullable = false)
         private String position;
 
         @ElementCollection
-        @CollectionTable(name = "applicant_answers", joinColumns = @JoinColumn(name = "applicant_id"))
+        @CollectionTable(name = "PROJS_ANSWER", joinColumns = @JoinColumn(name = "A_ID"))
         private List<String> answers;
     }
 

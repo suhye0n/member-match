@@ -18,25 +18,26 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "email"), @UniqueConstraint(columnNames = "username")})
+@Table(name = "USERS", uniqueConstraints = {@UniqueConstraint(columnNames = "U_EMAIL"), @UniqueConstraint(columnNames = "U_NAME")})
 public class UserEntity {
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    @Column(name = "U_ID")
     private String id;
 
-    @Column(nullable = false)
+    @Column(name = "U_NAME", nullable = false)
     private String username;
 
-    @Column(nullable = false)
+    @Column(name = "U_EMAIL", nullable = false)
     private String email;
 
-    @Column
+    @Column(name = "U_LOCATION")
     private String location;
 
-    @Column(nullable = false)
+    @Column(name = "U_PW", nullable = false)
     private String password;
 
-    @Column
+    @Column(name = "U_STATE")
     private Date state;
 }

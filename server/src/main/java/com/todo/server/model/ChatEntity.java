@@ -12,24 +12,25 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "chats")
+@Table(name = "CHATS")
 public class ChatEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "C_ID")
     private Long id;
 
-    @Column(name = "C_NAME", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "C_NAME", nullable = false)
     private String name;
 
     @ElementCollection
-    @CollectionTable(name = "chat_members", joinColumns = @JoinColumn(name = "chat_id"))
+    @CollectionTable(name = "CHATS_MEMBER", joinColumns = @JoinColumn(name = "C_ID"))
+    @Column(name = "C_MEMBERS", nullable = false)
     private List<String> members;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_id")
+    @JoinColumn(name = "C_MESSAGES")
     private List<MessageEntity> messages;
 
-    @Column(name = "C_KEY", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "C_KEY", nullable = false)
     private String key;
 }

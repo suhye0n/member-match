@@ -37,7 +37,7 @@ public class UserController {
 	public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
 	    try {
 	        if (userService.existsByEmail(userDTO.getEmail())) {
-	            throw new Exception("이미 가입된 이메일 주소입니다.");
+	            throw new Exception("이미 가입된 이메일 주소");
 	        }
 
 	        UserEntity user = UserEntity.builder()
@@ -209,7 +209,7 @@ public class UserController {
             if (user != null) {
                 user.setPassword(passwordEncoder.encode(newPassword));
                 userService.updateUser(user);
-                return ResponseEntity.ok(ResponseDTO.builder().message("Password updated successfully").build());
+                return ResponseEntity.ok(ResponseDTO.builder().message("비밀번호 변경 성공").build());
             } else {
                 return ResponseEntity.notFound().build();
             }
