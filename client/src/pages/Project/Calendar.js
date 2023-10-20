@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import { addCalendarEvent, getCalendarEventsByProjectKey, getCalendarEventById, updateCalendarEvent, deleteCalendarEvent } from "../../service/ApiService";
+import { addCalendarEvent, getCalendarEventsByProjectKey, getCalendarEventById, updateCalendarEvent, deleteCalendarEvent, createNotification, getAllProjects } from "../../service/ApiService";
 import { FaArrowLeft, FaArrowRight, FaRegCalendar, FaTrash } from 'react-icons/fa';
 
 const CalendarContainer = styled.div`
@@ -79,11 +79,11 @@ const BlurBackground = styled.div`
 
 const CustomCalendar = ({ projectId }) => {
     const localizer = momentLocalizer(moment);
-
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [editedEvent, setEditedEvent] = useState(null);
     const [isModalOpen, setModalOpen] = useState(false);
+    const [eventTitle, setEventTitle] = useState('');
     const [newEvent, setNewEvent] = useState({
         title: '',
         description: '',
@@ -131,12 +131,71 @@ const CustomCalendar = ({ projectId }) => {
         setEditedEvent(null);
     };
 
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        if (name === "title") {
+            setEventTitle(value);
+        }
+        setNewEvent((prevEvent) => ({
+            ...prevEvent,
+            [name]: value,
+        }));
+    };
+
+    const sendEventNotification = async (eventType, projectId, eventTitle) => {
+        try {
+            const creator = localStorage.getItem('username');
+
+            const projects = await getAllProjects();
+
+            projects.forEach(async (project) => {
+                if (project.key == projectId) {
+                    const members = project.member.map((member) => member.name);
+
+                    members.forEach(async (member) => {
+                        if (creator != member) {
+                            const notification = {
+                                username: member,
+                                text: `${creator}님이 "${eventTitle}" 일정을 ${eventType}했습니다.`,
+                                date: new Date().toISOString(),
+                                read: false,
+                            };
+
+                            await createNotification(notification);
+                        }
+                    });
+                }
+            });
+        } catch (error) {
+            console.error('알림 전송 실패:', error);
+        }
+    };
+
+    const handleAddEvent = () => {
+        if (newEvent.title && selectedDate) {
+            const start = selectedDate;
+            const end = selectedDate;
+            const creator = localStorage.getItem('username');
+
+            addCalendarEvent({ title: newEvent.title, description: newEvent.description, start, end, creator, projectKey: projectId })
+                .then(() => {
+                    fetchCalendarEvents();
+                    closeModal();
+                    sendEventNotification('생성', projectId, eventTitle);
+                })
+                .catch((error) => {
+                    console.error('Error adding calendar event:', error);
+                });
+        }
+    };
+
     const handleEventChange = () => {
         if (editedEvent) {
             updateCalendarEvent(selectedEvent.id, editedEvent)
                 .then(() => {
                     fetchCalendarEvents();
                     handleCloseEditor();
+                    sendEventNotification('수정', projectId, editedEvent.creator, eventTitle);
                 })
                 .catch((error) => {
                     console.error('Error updating calendar event:', error);
@@ -149,35 +208,11 @@ const CustomCalendar = ({ projectId }) => {
             .then(() => {
                 fetchCalendarEvents();
                 handleCloseEditor();
+                sendEventNotification('삭제', projectId, selectedEvent.creator, eventTitle);
             })
             .catch((error) => {
                 console.error('Error deleting calendar event:', error);
             });
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewEvent((prevEvent) => ({
-            ...prevEvent,
-            [name]: value,
-        }));
-    };
-
-    const handleAddEvent = () => {
-        if (newEvent.title && selectedDate) {
-            const start = selectedDate;
-            const end = selectedDate;
-            const creator = 'YourCreatorValue';
-
-            addCalendarEvent({ title: newEvent.title, description: newEvent.description, start, end, creator, projectKey: projectId })
-                .then(() => {
-                    fetchCalendarEvents();
-                    closeModal();
-                })
-                .catch((error) => {
-                    console.error('Error adding calendar event:', error);
-                });
-        }
     };
 
     return (

@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { BiTrash } from 'react-icons/bi';
 import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi';
+import {
+    markNotificationAsRead,
+    getNotificationsByUsername,
+    deleteNotification
+} from '../service/ApiService';
 
 const Btns = styled.div`
     position: absolute;
@@ -42,48 +47,51 @@ const Container = styled.div`
         &:hover {
             opacity: 0.7;
         }
-      } 
+    }
 `;
 
 const Notification = () => {
-    const [notifications, setNotifications] = useState([
-        {
-            text: '알림 1 내용',
-            date: '2023-10-09',
-            read: false,
-        },
-        {
-            text: '알림 2 내용',
-            date: '2023-10-08',
-            read: true,
-        },
-        {
-            text: '알림 3 내용',
-            date: '2023-10-07',
-            read: false,
-        },
-        {
-            text: '알림 4 내용',
-            date: '2023-10-06',
-            read: false,
-        },
-        {
-            text: '알림 5 내용',
-            date: '2023-10-05',
-            read: false,
-        },
-    ]);
+    const [notifications, setNotifications] = useState([]);
+
+    useEffect(() => {
+        const username = localStorage.getItem('username');
+
+        if (username) {
+            getNotificationsByUsername(username)
+                .then(response => {
+                    setNotifications(response);
+                })
+                .catch(error => {
+                    console.error('알림 가져오기 오류:', error);
+                });
+        }
+    }, []);
 
     const removeNotification = (index) => {
-        const updatedNotifications = [...notifications];
-        updatedNotifications.splice(index, 1);
-        setNotifications(updatedNotifications);
+        const notificationId = notifications[index].id;
+        deleteNotification(notificationId)
+            .then(() => {
+                const updatedNotifications = [...notifications];
+                updatedNotifications.splice(index, 1);
+                setNotifications(updatedNotifications);
+            })
+            .catch(error => {
+                console.error('알림 삭제 오류:', error);
+            });
     };
 
     const markAsRead = (index) => {
         const updatedNotifications = [...notifications];
         updatedNotifications[index].read = true;
         setNotifications(updatedNotifications);
+
+        const notificationId = updatedNotifications[index].id;
+        markNotificationAsRead(notificationId)
+            .then(response => {
+            })
+            .catch(error => {
+                console.error('알림 읽음 표시 변경 오류:', error);
+            });
     };
 
     return (

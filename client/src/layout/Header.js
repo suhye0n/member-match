@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styled, { keyframes } from 'styled-components';
 import Chat from './Chat';
 import Notification from './Notification';
-import { signout, getUserState, getAllChats } from "../service/ApiService";
+import { signout, getUserState, getAllChats, getNotificationsByUsername } from "../service/ApiService";
 
 const StyledHeader = styled.div`
     width: calc(100% - 160px);
@@ -190,47 +190,37 @@ const Header = () => {
     const [isNotiOpen, setNotiOpen] = useState(false);
     const [userState, setUserState] = useState("");
     const [chats, setChats] = useState([]);
+    const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
-    const notifications = [
-        {
-            text: '알림 1 내용',
-            date: '2023-10-09',
-            read: false,
-        },
-        {
-            text: '알림 2 내용',
-            date: '2023-10-08',
-            read: true,
-        },
-        {
-            text: '알림 3 내용',
-            date: '2023-10-07',
-            read: false,
-        },
-        {
-            text: '알림 4 내용',
-            date: '2023-10-06',
-            read: false,
-        },
-        {
-            text: '알림 5 내용',
-            date: '2023-10-05',
-            read: false,
-        },
-    ];
+    const fetchUnreadNotificationCount = async () => {
+        try {
+            const username = localStorage.getItem('username');
+            if (username) {
+                const response = await getNotificationsByUsername(username);
+                const unreadCount = response.filter(notification => !notification.read).length;
+                setUnreadNotificationCount(unreadCount);
+            }
+        } catch (error) {
+            console.error('알림 수 가져오기 오류:', error);
+        }
+    };
 
     useEffect(() => {
-        async function fetchChatData() {
+        async function fetchUnreadNotificationCount() {
             try {
-                const response = await getAllChats();
-                setChats(response);
+                const username = localStorage.getItem('username');
+                if (username) {
+                    const response = await getNotificationsByUsername(username);
+                    const unreadCount = response.filter(notification => !notification.read).length;
+                    setUnreadNotificationCount(unreadCount);
+                }
             } catch (error) {
-                console.error(error);
+                console.error('알림 수 가져오기 오류:', error);
             }
         }
 
         if (userExists) {
-            fetchChatData();
+            fetchUnreadNotificationCount();
         }
     }, [userExists]);
 
@@ -239,8 +229,6 @@ const Header = () => {
     });
 
     const unreadChatCount = unreadChatCounts.reduce((acc, count) => acc + count, 0);
-
-    const unreadNotificationCount = notifications.filter((notification) => !notification.read).length;
 
     useEffect(() => {
         async function fetchUserState() {
@@ -318,7 +306,8 @@ const Header = () => {
                                     <span className="badge">{unreadNotificationCount}</span>
                                 )}
                             </ChatIconWithBadge>
-                        </>}
+                        </>
+                    }
                 </CateBtn>
 
                 <MenuBtn>
@@ -342,9 +331,15 @@ const Header = () => {
 
             {isNotiOpen && (
                 <>
-                    <BlurBackground open={isNotiOpen} onClick={() => setNotiOpen(false)} />
+                    <BlurBackground open={isNotiOpen} onClick={() => {
+                        setNotiOpen(false);
+                        fetchUnreadNotificationCount();
+                    }} />
                     <Modal open={isNotiOpen}>
-                        <CloseBtn onClick={() => setNotiOpen(false)}>X</CloseBtn>
+                        <CloseBtn onClick={() => {
+                            setNotiOpen(false);
+                            fetchUnreadNotificationCount();
+                        }}>X</CloseBtn>
                         <Notification />
                     </Modal>
                 </>

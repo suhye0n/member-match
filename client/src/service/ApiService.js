@@ -446,3 +446,53 @@ export const getAllChats = async () => {
         throw error;
     }
 };
+
+export const createNotification = async (notificationData) => {
+    try {
+        const response = await call('/notifications', 'POST', notificationData);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const markNotificationAsRead = async (notificationId) => {
+    try {
+        const response = await call(`/notifications/${notificationId}/read`, 'PATCH', {});
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getAllNotifications = async () => {
+    try {
+        const response = await call("/notifications", "GET");
+        return response;
+    } catch (error) {
+        console.error("알림 가져오기 오류:", error);
+        throw error;
+    }
+};
+
+export const getNotificationsByUsername = async (username) => {
+    try {
+        const response = await call(`/notifications/${username}`, "GET");
+        return response;
+    } catch (error) {
+        console.error("사용자별 알림 가져오기 오류:", error);
+        throw error;
+    }
+};
+
+export const deleteNotification = async (notificationId) => {
+    try {
+        const response = await call(`/notifications/${notificationId}`, 'DELETE');
+        if (response) {
+            alert('알림이 삭제되었습니다.');
+        }
+    } catch (error) {
+        console.error("알림 삭제 오류:", error);
+        throw error;
+    }
+};
