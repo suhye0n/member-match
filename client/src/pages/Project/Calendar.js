@@ -257,6 +257,7 @@ const CustomCalendar = ({ projectId }) => {
                 fetchCalendarEvents();
                 handleCloseEditor();
                 sendEventNotification('삭제', projectId, selectedEvent.creator, eventTitle);
+                alert('일정이 삭제되었습니다.');
             })
             .catch((error) => {
                 console.error('Error deleting calendar event:', error);

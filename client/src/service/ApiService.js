@@ -376,7 +376,6 @@ export const deleteCalendarEvent = async (id) => {
     try {
         const response = await call(`/calendar/${id}`, "DELETE");
         if (response) {
-            alert('일정이 삭제되었습니다.');
         }
     } catch (error) {
         console.error('일정 삭제 오류:', error);

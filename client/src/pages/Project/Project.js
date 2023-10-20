@@ -36,6 +36,24 @@ const Container = styled.div`
 `;
 
 const Tag = styled.span`
+    position: relative;
+    width: max-content;
+    height: auto;
+    display: inline-block;
+    border-radius: 25px;
+    background-color: #f0ede6;
+    padding: 6px 14px;
+    font-weight: 400;
+    color: #726f69;
+    box-shadow: inset 3px 3px 6px #e5ece6, 2px 2px 4px #e5ece6;
+    margin: 0 3px 0 5px;
+    cursor: pointer;
+    transition: 0.4s;
+    white-space: break-spaces;
+    overflow-wrap: break-word;
+`;
+
+const Cate = styled.span`
     background: #000;
     color: #FFF;
     padding: 5px 8px;
@@ -842,7 +860,7 @@ const Project = () => {
                             <p>{project.desc}</p>
                             <FlexContainer>
                                 <Icon><BiCategory /></Icon>
-                                <Tag>#{project.cate}</Tag>
+                                <Cate>#{project.cate}</Cate>
                             </FlexContainer>
                             <FlexContainer>
                                 <Icon><BiLogoReact /></Icon>
