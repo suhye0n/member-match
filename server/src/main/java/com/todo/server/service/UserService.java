@@ -16,20 +16,20 @@ public class UserService {
 
     public UserEntity create(final UserEntity userEntity) {
         if (userEntity == null || userEntity.getEmail() == null || userEntity.getUsername() == null) {
-            throw new RuntimeException("Invalid arguments");
+            throw new RuntimeException("이메일 또는 닉네임에 null이 들어갈 수 없음");
         }
 
         final String email = userEntity.getEmail();
         final String username = userEntity.getUsername();
 
         if (userRepository.existsByUsername(username)) {
-            log.warn("Username already exists: {}", username);
-            throw new RuntimeException("Username already exists");
+            log.warn("닉네임 중복: {}", username);
+            throw new RuntimeException("닉네임 중복");
         }
 
         if (existsByEmail(email)) {
-            log.warn("Email already exists: {}", email);
-            throw new RuntimeException("Email already exists");
+            log.warn("이메일 중복: {}", email);
+            throw new RuntimeException("이메일 중복");
         }
 
         return userRepository.save(userEntity);

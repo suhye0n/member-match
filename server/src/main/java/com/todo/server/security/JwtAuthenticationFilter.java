@@ -28,11 +28,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 			FilterChain filterChain) throws ServletException, IOException {
 		try {
 			String token =parseBearerToken(request);
-			log.info("Filter is running...");
 			
 			if(token !=null &&!token.equalsIgnoreCase("null")){
 				String userId = tokenProvider.validateAndGetUserId(token);
-				log.info("Authenticated user ID : "+ userId);
+				log.info("인증된 유저 ID: "+ userId);
 				AbstractAuthenticationToken authentication = 
 						new UsernamePasswordAuthenticationToken(userId,null, AuthorityUtils.NO_AUTHORITIES);
 				
@@ -43,8 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 			SecurityContextHolder.setContext(securityContext);
 			}
 			
-		}catch(Exception ex){
-			logger.error("Could not set user authentication in security context",ex);
+		} catch(Exception ex){
+			logger.error("인증 실패:", ex);
 			
 		}
 		filterChain.doFilter(request, response);

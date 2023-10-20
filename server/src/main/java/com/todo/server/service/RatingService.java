@@ -1,10 +1,8 @@
 package com.todo.server.service;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.todo.server.model.RatingEntity;
 import com.todo.server.model.UserEntity;
 import com.todo.server.persistence.RatingRepository;

@@ -2,15 +2,12 @@ package com.todo.server.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.todo.server.dto.ReportDTO;
 import com.todo.server.service.ReportService;
-
-import io.jsonwebtoken.lang.Collections;
 
 @RestController
 @RequestMapping("/reports")
@@ -26,9 +23,9 @@ public class ReportController {
     public ResponseEntity<String> createReport(@RequestBody ReportDTO reportDTO) {
         try {
             reportService.createReport(reportDTO);
-            return new ResponseEntity<>("Report created successfully", HttpStatus.CREATED);
+            return new ResponseEntity<>("신고 생성 성공:", HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("Report creation failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("신고 생성 실패: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -36,9 +33,9 @@ public class ReportController {
     public ResponseEntity<String> deleteReport(@PathVariable Long reportId) {
         try {
             reportService.deleteReport(reportId);
-            return new ResponseEntity<>("Report deleted successfully", HttpStatus.OK);
+            return new ResponseEntity<>("신고 삭제 성공: ", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Report deletion failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("신고 삭제 실패: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
     

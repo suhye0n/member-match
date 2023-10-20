@@ -3,7 +3,6 @@ package com.todo.server.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.todo.server.persistence.ReportRepository;
@@ -33,7 +32,7 @@ public class ReportService {
         if (optionalReportEntity.isPresent()) {
             reportRepository.delete(optionalReportEntity.get());
         } else {
-            throw new RuntimeException("Report not found for id: " + reportId);
+            throw new RuntimeException("신고 삭제 실패: " + reportId);
         }
     }
     

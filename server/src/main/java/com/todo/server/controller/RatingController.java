@@ -4,11 +4,8 @@ import com.todo.server.dto.RatingDTO;
 import com.todo.server.model.UserEntity;
 import com.todo.server.persistence.UserRepository;
 import com.todo.server.service.RatingService;
-
 import java.util.Optional;
-
 import javax.persistence.EntityNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +51,7 @@ public class RatingController {
     
     private UserEntity getUserEntityFromDTO(String username) {
         Optional<UserEntity> userEntityOptional = getUserEntityByUsername(username);
-        return userEntityOptional.orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
+        return userEntityOptional.orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없음: " + username));
     }
 
     private Optional<UserEntity> getUserEntityByUsername(String username) {

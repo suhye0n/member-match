@@ -5,9 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.todo.server.model.ProjEntity;
 import com.todo.server.service.ProjService;
-
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/proj")
