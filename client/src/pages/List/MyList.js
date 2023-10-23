@@ -119,9 +119,11 @@ const MyList = () => {
                             </div>
                             <div>
                                 <span><BiLogoReact /></span>
-                                <span>{item.stack.map((stack, index) => (
-                                    <span key={index}>#{stack}</span>
-                                ))}</span>
+                                <span>
+                                    {item.stack.map((stack, index, array) => (
+                                        index === array.length - 1 ? `#${stack}` : `#${stack}, `
+                                    ))}
+                                </span>
                             </div>
                         </Link>
                     </ListItem>

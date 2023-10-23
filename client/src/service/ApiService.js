@@ -216,6 +216,42 @@ export const updateProject = async (projectId, projDTO) => {
     }
 }
 
+export const refuseMember = async (projectId, projDTO) => {
+    try {
+        await call(`/proj/update/${projectId}`, "PUT", projDTO);
+
+        alert("지원자가 거절되었습니다.");
+    } catch (error) {
+        console.error("프로젝트 업데이트 오류:", error);
+
+        throw error;
+    }
+}
+
+export const approveMember = async (projectId, projDTO) => {
+    try {
+        await call(`/proj/update/${projectId}`, "PUT", projDTO);
+
+        alert("지원자가 승인되었습니다.");
+    } catch (error) {
+        console.error("프로젝트 업데이트 오류:", error);
+
+        throw error;
+    }
+}
+
+export const excludeMember = async (projectId, projDTO) => {
+    try {
+        await call(`/proj/update/${projectId}`, "PUT", projDTO);
+
+        alert("팀원 제외가 완료되었습니다.");
+    } catch (error) {
+        console.error("프로젝트 업데이트 오류:", error);
+
+        throw error;
+    }
+}
+
 export const findId = async (email) => {
     try {
         const response = await call(`/auth/find/${email}`, "GET");

@@ -276,14 +276,8 @@ const List = () => {
         selectedProject.applicants.push(newApplicant);
 
         try {
-            const updatedProject = await apply(selectedProject.key, selectedProject);
-            if (updatedProject) {
-                setModalOpen(false);
-                const updatedProjects = projects.map(item =>
-                    item.key === selectedProject.key ? updatedProject : item
-                );
-                setProjects(updatedProjects);
-            }
+            await apply(selectedProject.key, selectedProject);
+            window.location.reload();
         } catch (error) {
             console.error("멤버 지원 오류:", error);
         }

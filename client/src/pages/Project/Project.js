@@ -11,14 +11,16 @@ import CustomCalendar from './Calendar';
 import {
     getAllProjects,
     deleteProject,
-    updateProject,
+    excludeMember,
     recProject,
     rateUser,
     reportResource,
     getAverageRating,
     getUserLocation,
     getUserState,
-    patchChat
+    patchChat,
+    refuseMember,
+    approveMember
 } from '../../service/ApiService';
 
 const Heading = styled.div`
@@ -511,8 +513,7 @@ const Project = () => {
             };
 
             try {
-                await updateProject(projectId, updatedProjectData);
-                alert(`${memberName}님을 팀에서 제외하였습니다.`);
+                await excludeMember(projectId, updatedProjectData);
                 const chatRoomData = {
                     members: updatedMembers.map((member) => member.name),
                 };
@@ -544,9 +545,8 @@ const Project = () => {
                     member: project.member,
                 };
 
-                updateProject(project.key, updatedProjectData)
+                approveMember(project.key, updatedProjectData)
                     .then(async (response) => {
-                        alert("지원자가 승인되었습니다.");
 
                         const chatRoomData = {
                             name: project.title,
@@ -583,9 +583,8 @@ const Project = () => {
                     member: project.member,
                 };
 
-                updateProject(project.key, updatedProjectData)
-                    .then((response) => {
-                        alert("지원자가 거절되었습니다.");
+                refuseMember(project.key, updatedProjectData)
+                    .then(() => {
                         window.location.reload();
                     })
                     .catch((error) => {
