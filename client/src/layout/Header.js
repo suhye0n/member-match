@@ -285,7 +285,7 @@ const Header = () => {
                 <CateBtn>
                     <Link to='/list'>멤버 모집</Link>
                     {userExists && <Link to='/list/my'>내 프로젝트</Link>}
-                    {userExists &&
+                    {/* {userExists &&
                         <>
                             <ChatIconWithBadge>
                                 <a onClick={() => setChatOpen(true)}>채팅</a>
@@ -294,7 +294,7 @@ const Header = () => {
                                 )}
                             </ChatIconWithBadge>
                         </>
-                    }
+                    } */}
                     {userExists &&
                         <>
                             <ChatIconWithBadge>
